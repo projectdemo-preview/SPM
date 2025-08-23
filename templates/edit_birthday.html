@@ -1,0 +1,16 @@
+{% for birthday in birthdays %}
+    <div class="col-md-4">
+        <div class="card mb-5">
+            <div class="card-body">
+                <h5 class="card-title">{{ birthday.name }}</h5>
+                <p class="card-text">Birthday Date: {{ birthday.date_of_birth.strftime('%Y-%m-%d') }}</p>
+                <div class="d-flex justify-content-between">
+                    <a href="{{ url_for('edit_birthday', birthday_id=birthday.id) }}" class="btn btn-warning btn-sm">Edit</a>
+                    <form action="{{ url_for('delete_birthday', birthday_id=birthday.id) }}" method="POST" style="display:inline;">
+                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endfor %}

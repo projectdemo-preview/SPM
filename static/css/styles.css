@@ -1,0 +1,141 @@
+/* General Body Styles */
+body {
+    background-color: #0f62aa; /* Main background color */
+}
+
+/* Hero Section */
+.hero {
+    background-size: cover; /* Cover the entire hero section */
+    background-position: center; /* Center the background image */
+    color: white; /* Ensures hero text is readable */
+}
+
+/* Card Styles */
+.card {
+    border: none; /* Clean card appearance without borders */
+}
+
+.card-header {
+    font-weight: bold; /* Bold font for card headers */
+}
+
+.shadow {
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Soft shadow for cards */
+}
+
+/* Fotter */
+
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom styles for the Project Management Software */
+body {
+    @apply bg-gray-100 font-sans text-gray-800;
+}
+
+/* Navbar */
+.navbar {
+    @apply bg-gray-900 text-white shadow-lg;
+}
+.navbar-brand {
+    @apply text-xl font-bold tracking-tight;
+}
+.nav-link {
+    @apply px-3 py-2 text-sm font-medium hover:bg-gray-700 rounded-md transition-colors;
+}
+.navbar-toggler {
+    @apply text-white;
+}
+
+/* Main Container */
+.container-fluid {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+/* Alerts */
+.alert-container {
+    @apply mb-4;
+}
+.alert {
+    @apply p-4 rounded-lg shadow-md mb-2;
+}
+.alert-success {
+    @apply bg-green-100 text-green-800 border-l-4 border-green-500;
+}
+.alert-danger {
+    @apply bg-red-100 text-red-800 border-l-4 border-red-500;
+}
+.alert-info {
+    @apply bg-blue-100 text-blue-800 border-l-4 border-blue-500;
+}
+.alert-warning {
+    @apply bg-yellow-100 text-yellow-800 border-l-4 border-yellow-500;
+}
+.btn-close {
+    @apply text-gray-500 hover:text-gray-700;
+}
+
+/* Dashboard */
+h3 {
+    @apply text-2xl font-semibold text-gray-900 mb-4;
+}
+h4 {
+    @apply text-xl font-medium text-gray-800 mt-6 mb-3;
+}
+h5 {
+    @apply text-lg font-medium text-gray-700 mb-2;
+}
+hr {
+    @apply border-gray-300 my-6;
+}
+
+/* List Groups */
+.list-group {
+    @apply space-y-3;
+}
+.list-group-item {
+    @apply bg-white p-4 rounded-lg shadow-sm border border-gray-200 hover:bg-gray-50 transition-colors;
+}
+.list-group-item h6 {
+    @apply text-base font-semibold text-gray-900;
+}
+.list-group-item p {
+    @apply text-sm text-gray-600 mt-1;
+}
+.list-group-item small {
+    @apply text-xs text-gray-500;
+}
+
+/* Buttons */
+.btn {
+    @apply inline-flex items-center px-4 py-2 rounded-md font-medium transition-colors;
+}
+.btn-primary {
+    @apply bg-blue-600 text-white hover:bg-blue-700;
+}
+.btn-sm {
+    @apply px-3 py-1 text-sm;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .navbar-nav {
+        @apply mt-2 space-y-2;
+    }
+    .nav-link {
+        @apply block px-2 py-1;
+    }
+    .row {
+        @apply space-y-6;
+    }
+    .col-md-4, .col-md-6 {
+        @apply w-full;
+    }
+}
+
+/* Custom Card-like Styling for Dashboard Sections */
+.row > div {
+    @apply mb-6;
+}

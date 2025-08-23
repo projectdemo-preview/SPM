@@ -1,0 +1,40 @@
+{% extends "dashboard_base.html" %}
+
+{% block content %}
+
+
+<div class="container mt-5 d-flex justify-content-center">
+    <div class="card p-4 shadow-lg" style="width: 100%; max-width: 500px;">
+        <h2 class="text-center mb-4">Add New Message</h2>
+        <form method="POST" action="{{ url_for('add_birthday') }}">
+            <div class="form-group mb-3">
+                <label for="name">Name</label>
+                <input type="text" class="form-control" id="name" name="name" required>
+
+            </div>
+            <div class="form-group mb-3">
+                <label for="date_of_birth">Date of Birth</label>
+                <input type="date" class="form-control" id="date_of_birth" name="date" required>
+            </div>
+            <div class="form-group mb-3">
+                <label for="subject">Subject</label>
+                <input type="text" class="form-control" id="subject" name="subject">
+            </div>
+            <div class="form-group mb-4">
+                <label for="message">Message</label>
+                <input type="text" class="form-control" id="message" name="message" required>
+            </div>
+
+            <div class="form-group mb-4">
+                <label for="email">Email</label>
+                <input type="email" class="form-control" id="email" name="email" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">Add Birthday</button>
+        </form>
+    </div>
+
+    
+    {% endblock %}
+
+

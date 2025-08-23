@@ -1,0 +1,30 @@
+{% extends "dashboard_base.html" %}
+{% block content %}
+
+
+
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
+    <div class="card shadow-lg p-4" style="width: 100%; max-width: 600px;">
+        <h1 class="text-center mb-4">Add New Task</h1>
+        <form action="{{ url_for('add_task') }}" method="post">
+            <div class="mb-3">
+                <label for="title" class="form-label">Task Title</label>
+                <input type="text" class="form-control" id="title" name="title" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="description" class="form-label">Description</label>
+                <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+            </div>
+            <div class="mb-3">
+                <label for="due_date" class="form-label">Due Date</label>
+                <input type="date" class="form-control" id="due_date" name="due_date" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Add Task</button>  
+            <!-- <button type="action" class="btn btn-primary w-100">Auto Message</button>  -->
+
+        </form>
+    </div>
+</div>
+ {% endblock %}
+   

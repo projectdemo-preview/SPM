@@ -1,0 +1,95 @@
+{% extends 'dashboard_base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block dashboard_content %}
+<div class="container-fluid mt-4">
+    <h3>Welcome, {{ session.get('userID') }}!</h3>
+
+    <hr>
+    <h4>Assigned by Admin</h4>
+    <div class="row mt-4">
+        <!-- Tasks -->
+        <div class="col-md-4">
+            <h5>Tasks</h5>
+            <div class="list-group">
+                {% for task in tasks %}
+                    <div class="list-group-item">
+                        <h6>{{ task.title }}</h6>
+                        <p>{{ task.description }}</p>
+                        {% if task.due_date %}
+                            <small>Due: {{ task.due_date.strftime('%Y-%m-%d') }}</small>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <p>No tasks assigned.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Announcements -->
+        <div class="col-md-4">
+            <h5>Announcements</h5>
+            <div class="list-group">
+                {% for announcement in announcements %}
+                    <div class="list-group-item">
+                        <h6>{{ announcement.title }}</h6>
+                        <p>{{ announcement.description }}</p>
+                    </div>
+                {% else %}
+                    <p>No announcements.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Resources -->
+        <div class="col-md-4">
+            <h5>Resources</h5>
+            <div class="list-group">
+                {% for resource in resources %}
+                    <div class="list-group-item">
+                        <h6>{{ resource.title }}</h6>
+                        <p>{{ resource.description }}</p>
+                    </div>
+                {% else %}
+                    <p>No resources provided.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <hr class="mt-5">
+    <h4>My Personal Reminders</h4>
+    <div class="row mt-4">
+        <!-- Birthdays -->
+        <div class="col-md-6">
+            <h5>
+                Birthdays 
+                <a href="{{ url_for('birthdays') }}" class="btn btn-sm btn-primary">Manage</a>
+            </h5>
+            <ul class="list-group">
+                {% for birthday in birthdays %}
+                    <li class="list-group-item">{{ birthday.name }} - {{ birthday.date_of_birth.strftime('%B %d') }}</li>
+                {% else %}
+                    <li class="list-group-item">No birthday reminders set.</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Movie Alerts -->
+        <div class="col-md-6">
+            <h5>
+                Movie Alerts
+                <a href="{{ url_for('movies') }}" class="btn btn-sm btn-primary">Manage</a>
+            </h5>
+            <ul class="list-group">
+                {% for movie in movies %}
+                    <li class="list-group-item">{{ movie.movie_name }} - {{ movie.release_date.strftime('%Y-%m-%d') }}</li>
+                {% else %}
+                    <li class="list-group-item">No movie alerts set.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

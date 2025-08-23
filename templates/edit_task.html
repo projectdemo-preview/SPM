@@ -1,0 +1,23 @@
+<!-- edit_task.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Edit Task</h2>
+    <form action="{{ url_for('edit_task', task_id=task.id) }}" method="POST">
+        <div class="mb-3">
+            <label for="title" class="form-label">Title</label>
+            <input type="text" class="form-control" id="title" name="title" value="{{ task.title }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <textarea class="form-control" id="description" name="description" rows="3" required>{{ task.description }}</textarea>
+        </div>
+        <div class="mb-3">
+            <label for="due_date" class="form-label">Due Date</label>
+            <input type="date" class="form-control" id="due_date" name="due_date" value="{{ task.due_date.strftime('%Y-%m-%d') }}" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Update Task</button>
+    </form>
+</div>
+{% endblock %}
