@@ -19,6 +19,9 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # Initialize DB
 db = SQLAlchemy(app)
 
+with app.app_context():
+    db.create_all()
+
 # -----------------------------
 # Models (Example Structure)
 # -----------------------------
@@ -176,15 +179,19 @@ def logout():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    user_id = session['user_id']
-    tasks = Task.query.filter_by(user_id=user_id).all()
-    announcements = Announcement.query.filter_by(user_id=user_id).all()
-    resources = Resource.query.filter_by(user_id=user_id).all()
-    birthdays = Birthday.query.filter_by(user_id=user_id).all()
-    movies = MovieAlert.query.filter_by(user_id=user_id).all()
-    return render_template('dashboard.html',
-                           tasks=tasks, announcements=announcements, resources=resources,
-                           birthdays=birthdays, movies=movies)
+    try:
+        user_id = session['user_id']
+        tasks = Task.query.filter_by(user_id=user_id).all()
+        announcements = Announcement.query.filter_by(user_id=user_id).all()
+        resources = Resource.query.filter_by(user_id=user_id).all()
+        birthdays = Birthday.query.filter_by(user_id=user_id).all()
+        movies = MovieAlert.query.filter_by(user_id=user_id).all()
+        return render_template('dashboard.html',
+                            tasks=tasks, announcements=announcements, resources=resources,
+                            birthdays=birthdays, movies=movies)
+    except Exception as e:
+        return f"Error in dashboard: {e}"
+
 
 @app.route('/admin/dashboard')
 @login_required
@@ -197,5 +204,6 @@ def admin_dashboard():
 # -----------------------------
 # Run
 # -----------------------------
+
 if __name__ == '__main__':
     app.run(debug=False)
