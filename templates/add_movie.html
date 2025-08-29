@@ -1,23 +1,38 @@
 {% extends "dashboard_base.html" %}
-{% block content %}
- 
-<center>><h2>Movie alert</h2></center>
 
-<div class="container mt-5 d-flex justify-content-center">
-    <div class="card p-4 shadow-lg" style="width: 100%; max-width: 500px;">
-        <h2 class="text-center mb-4">Add New Movie Alert</h2>
+{% block title %}Add Movie Alert{% endblock %}
+
+{% block dashboard_content %}
+<div class="container mx-auto px-4 sm:px-6 lg:px-8">
+    <h1 class="text-4xl font-bold mb-8">Add New Movie Alert</h1>
+
+    <div class="card">
         <form action="{{ url_for('add_movie') }}" method="post">
-            <div class="form-group mb-3">
+            <div class="form-group mb-4">
                 <label for="title">Movie Title</label>
-                <input type="text" class="form-control" id="title" name="title" required>
+                <input type="text" class="form-control" id="title" name="title" minlength="2" required>
             </div>
             <div class="form-group mb-4">
                 <label for="release_date">Release Date</label>
                 <input type="date" class="form-control" id="release_date" name="release_date" required>
             </div>
-            <button type="submit" class="btn btn-primary w-100">Add Movie Alert</button>
+            <button type="submit" class="btn btn-primary">Add Movie Alert</button>
         </form>
     </div>
 </div>
+<script>
+    const releaseDateInput = document.getElementById('release_date');
 
-    {% endblock %}
+    releaseDateInput.addEventListener('change', function() {
+        const selectedDate = new Date(this.value);
+        const now = new Date();
+        now.setHours(0, 0, 0, 0);
+
+        if (selectedDate < now) {
+            this.setCustomValidity('Release date cannot be in the past.');
+        } else {
+            this.setCustomValidity('');
+        }
+    });
+</script>
+{% endblock %}

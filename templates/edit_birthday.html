@@ -1,16 +1,50 @@
-{% for birthday in birthdays %}
-    <div class="col-md-4">
-        <div class="card mb-5">
-            <div class="card-body">
-                <h5 class="card-title">{{ birthday.name }}</h5>
-                <p class="card-text">Birthday Date: {{ birthday.date_of_birth.strftime('%Y-%m-%d') }}</p>
-                <div class="d-flex justify-content-between">
-                    <a href="{{ url_for('edit_birthday', birthday_id=birthday.id) }}" class="btn btn-warning btn-sm">Edit</a>
-                    <form action="{{ url_for('delete_birthday', birthday_id=birthday.id) }}" method="POST" style="display:inline;">
-                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                    </form>
-                </div>
+{% extends "dashboard_base.html" %}
+
+{% block title %}Edit Birthday{% endblock %}
+
+{% block dashboard_content %}
+<div class="container mx-auto px-4 sm:px-6 lg:px-8">
+    <h1 class="text-4xl font-bold mb-8">Edit Birthday</h1>
+
+    <div class="card">
+        <form action="{{ url_for('edit_birthday', birthday_id=birthday.id) }}" method="POST">
+            <div class="form-group mb-4">
+                <label for="name">Name</label>
+                <input type="text" class="form-control" id="name" name="name" value="{{ birthday.name }}" minlength="2" required>
             </div>
-        </div>
+            <div class="form-group mb-4">
+                <label for="date_of_birth">Date of Birth</label>
+                <input type="date" class="form-control" id="date_of_birth" name="date_of_birth" value="{{ birthday.date_of_birth.strftime('%Y-%m-%d') }}" required>
+            </div>
+            <div class="form-group mb-4">
+                <label for="email">Email</label>
+                <input type="email" class="form-control" id="email" name="email" value="{{ birthday.email }}" required>
+            </div>
+            <div class="form-group mb-4">
+                <label for="subject">Subject</label>
+                <input type="text" class="form-control" id="subject" name="subject" value="{{ birthday.subject }}" minlength="5">
+            </div>
+            <div class="form-group mb-4">
+                <label for="message">Message</label>
+                <textarea class="form-control" id="message" name="message" rows="3" minlength="10" required>{{ birthday.message }}</textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Update Birthday</button>
+        </form>
     </div>
-{% endfor %}
+</div>
+<script>
+    const dobInput = document.getElementById('date_of_birth');
+
+    dobInput.addEventListener('change', function() {
+        const selectedDate = new Date(this.value);
+        const now = new Date();
+        now.setHours(0, 0, 0, 0);
+
+        if (selectedDate > now) {
+            this.setCustomValidity('Date of birth cannot be in the future.');
+        } else {
+            this.setCustomValidity('');
+        }
+    });
+</script>
+{% endblock %}

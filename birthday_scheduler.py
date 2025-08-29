@@ -55,7 +55,7 @@ def send_birthday_emails():
                 print(f"Sending email to {birthday.email}...")
                 with SMTP(Config.EMAIL_HOST, Config.EMAIL_PORT) as server:
                     server.starttls()
-                    server.login(birthday.user_email, birthday.user_password)
+                    server.login(Config.EMAIL_USER, Config.EMAIL_PASS)
                     server.sendmail(birthday.user_email, birthday.email, msg.as_string())
                 print(f" Email sent to {birthday.email}")
                 

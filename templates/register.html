@@ -3,38 +3,45 @@
 {% block title %}Register{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <h2>Register</h2>
-    <form method="POST" action="{{ url_for('register') }}">
-        <div class="form-group">
-            <label for="userID">User ID</label>
-            <input type="text" class="form-control" id="userID" name="userID" required>
-        </div>
-        <div class="form-group">
-            <label for="name">Name</label>
-            <input type="text" class="form-control" id="name" name="name" required>
-        </div>
-        <div class="form-group">
-            <label for="email">Email</label>
-            <input type="email" class="form-control" id="email" name="email" required>
-        </div>
-        <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" class="form-control" id="password" name="password" required>
-        </div>
-        <div class="form-group">
-            <label for="domain">Domain</label>
-            <input type="text" class="form-control" id="domain" name="domain">
-        </div>
-        <div class="form-group">
-            <label for="position">Position</label>
-            <input type="text" class="form-control" id="position" name="position">
-        </div>
-        <div class="form-group">
-            <label for="duration">Duration</label>
-            <input type="text" class="form-control" id="duration" name="duration">
-        </div>
-        <button type="submit" class="btn btn-primary">Register</button>
-    </form>
+<div class="flex items-center justify-center min-h-screen bg-gray-100">
+    <div class="card bg-white max-w-md w-full rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 p-6">
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 text-center mb-6 animate-fade-in">
+            Register
+        </h1>
+        <form method="POST" action="{{ url_for('register') }}" class="space-y-6">
+            <div class="form-group">
+                <label for="userID" class="block text-sm font-medium text-gray-700">User ID</label>
+                <input type="text" class="w-full mt-1 p-2 border border-gray-300 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200" id="userID" name="userID" required>
+            </div>
+            <div class="form-group">
+                <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
+                <input type="text" class="w-full mt-1 p-2 border border-gray-300 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                <input type="email" class="w-full mt-1 p-2 border border-gray-300 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                <input type="password" class="w-full mt-1 p-2 border border-gray-300 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200" id="password" name="password" required>
+            </div>
+            <div class="form-group">
+                <label for="domain" class="block text-sm font-medium text-gray-700">Domain (Optional)</label>
+                <input type="text" class="w-full mt-1 p-2 border border-gray-300 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200" id="domain" name="domain">
+            </div>
+            <div class="form-group">
+                <label for="position" class="block text-sm font-medium text-gray-700">Position (Optional)</label>
+                <input type="text" class="w-full mt-1 p-2 border border-gray-300 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200" id="position" name="position">
+            </div>
+            <div class="form-group">
+                <label for="duration" class="block text-sm font-medium text-gray-700">Duration (Optional)</label>
+                <input type="text" class="w-full mt-1 p-2 border border-gray-300 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200" id="duration" name="duration">
+            </div>
+            <button type="submit" class="btn bg-indigo-600 text-white w-full px-4 py-2 rounded-md font-medium hover:bg-indigo-700 transition-colors duration-200">Register</button>
+            <div class="text-center mt-4 text-sm text-gray-600">
+                <p>Already have an account? <a href="{{ url_for('login') }}" class="text-indigo-600 hover:underline">Log in</a></p>
+            </div>
+        </form>
+    </div>
 </div>
 {% endblock %}

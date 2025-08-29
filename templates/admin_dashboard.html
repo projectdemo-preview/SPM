@@ -1,42 +1,293 @@
-{% extends 'base.html' %}
+{% extends 'dashboard_base.html' %}
 
 {% block title %}Admin Dashboard{% endblock %}
 
-{% block content %}
-<div class="container-fluid mt-5">
-    <h2>Admin Dashboard</h2>
-    <h3 class="mt-4">Manage Users</h3>
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>User ID</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Domain</th>
-                <th>Position</th>
-                <th>Duration</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for user in users %}
-            <tr>
-                <td>{{ user.userID }}</td>
-                <td>{{ user.name }}</td>
-                <td>{{ user.email }}</td>
-                <td>{{ user.domain }}</td>
-                <td>{{ user.position }}</td>
-                <td>{{ user.duration }}</td>
-                <td>
-                    <a href="{{ url_for('edit_user', user_id=user.id) }}" class="btn btn-warning btn-sm">Edit</a>
-                    <form action="{{ url_for('delete_user', user_id=user.id) }}" method="POST" style="display:inline;">
-                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this user and all their content?')">Delete</button>
+{% block dashboard_content %}
+<div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Page Header -->
+    <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-8 tracking-tight animate-fade-in">
+        Admin Dashboard
+    </h1>
+
+    <!-- Users Card -->
+    <div class="card bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 mb-8">
+        <div class="card-header flex justify-between items-center p-6 border-b border-gray-200">
+            <h3 class="text-lg sm:text-xl font-semibold text-gray-800 flex items-center">
+                <i class="fas fa-users mr-3 text-indigo-600"></i> Users
+            </h3>
+            <a href="{{ url_for('manage_requests') }}" class="btn bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 transition-colors duration-200" aria-label="Manage user requests">
+                <i class="fas fa-code-branch mr-2"></i> Manage Requests
+            </a>
+        </div>
+        <div class="p-6">
+            <div class="overflow-x-auto">
+                <table class="table w-full text-sm text-gray-700">
+                    <thead>
+                        <tr class="bg-gray-100">
+                            <th class="p-3 text-left font-semibold">User ID</th>
+                            <th class="p-3 text-left font-semibold">Name</th>
+                            <th class="p-3 text-left font-semibold">Email</th>
+                            <th class="p-3 text-left font-semibold">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if users %}
+                            {% for user in users %}
+                            <tr class="border-b border-gray-200 hover:bg-gray-50 transition-colors duration-200">
+                                <td class="p-3">{{ user.userID|default('N/A', true) }}</td>
+                                <td class="p-3">{{ user.name|default('Unknown', true) }}</td>
+                                <td class="p-3">{{ user.email|default('No Email', true) }}</td>
+                                <td class="p-3 flex space-x-2">
+                                    <button type="button" class="btn bg-indigo-600 text-white px-3 py-1 rounded-md text-sm font-medium hover:bg-indigo-700 transition-colors duration-200" data-bs-toggle="modal" data-bs-target="#addItemModal" data-user-id="{{ user.id|default(0, true) }}" aria-label="Add item for user {{ user.name|default('Unknown', true) }}">
+                                        Add Item
+                                    </button>
+                                    <a href="{{ url_for('edit_user', user_id=user.id) if user.id else '#' }}" class="btn bg-yellow-500 text-white px-3 py-1 rounded-md text-sm font-medium hover:bg-yellow-600 transition-colors duration-200 {% if not user.id %}opacity-50 cursor-not-allowed{% endif %}" aria-label="Edit user {{ user.name|default('Unknown', true) }}">
+                                        Edit
+                                    </a>
+                                    <a href="{{ url_for('delete_user', user_id=user.id) if user.id else '#' }}" class="btn bg-red-500 text-white px-3 py-1 rounded-md text-sm font-medium hover:bg-red-600 transition-colors duration-200 {% if not user.id %}opacity-50 cursor-not-allowed{% endif %}" onclick="{% if user.id %}return confirm('Are you sure you want to delete this user?'){% else %}return false{% endif %}" aria-label="Delete user {{ user.name|default('Unknown', true) }}">
+                                        Delete
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="4" class="p-3 text-center text-gray-500 italic">No users available.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Item Modal -->
+    <div class="modal fade" id="addItemModal" tabindex="-1" aria-labelledby="addItemModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-white rounded-xl shadow-xl">
+                <div class="modal-header bg-gray-50 border-b border-gray-200 p-4">
+                    <h5 class="modal-title text-lg font-semibold text-gray-800" id="addItemModalLabel">Add New Item</h5>
+                    <button type="button" class="btn-close text-gray-600 hover:text-gray-800 transition-colors duration-200" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-6">
+                    <form action="{{ url_for('admin_add') }}" method="POST" class="space-y-4">
+                        <input type="hidden" name="user_id" id="modal_user_id">
+                        <div class="form-group">
+                            <label for="item_type" class="block text-sm font-medium text-gray-700">Item Type</label>
+                            <select class="w-full mt-1 p-2 border border-gray-300 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200" id="item_type" name="item_type" required aria-describedby="item_type_help">
+                                <option value="task">Task</option>
+                                <option value="announcement">Announcement</option>
+                                <option value="resource">Resource</option>
+                            </select>
+                            <small id="item_type_help" class="text-xs text-gray-500">Select the type of item to add.</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="title" class="block text-sm font-medium text-gray-700">Title</label>
+                            <input type="text" class="w-full mt-1 p-2 border border-gray-300 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200" id="title" name="title" required aria-describedby="title_help">
+                            <small id="title_help" class="text-xs text-gray-500">Enter a concise title for the item.</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
+                            <textarea class="w-full mt-1 p-2 border border-gray-300 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200" id="description" name="description" rows="4" aria-describedby="description_help"></textarea>
+                            <small id="description_help" class="text-xs text-gray-500">Provide details about the item.</small>
+                        </div>
+                        <div class="form-group" id="due_date_group">
+                            <label for="due_date" class="block text-sm font-medium text-gray-700">Due Date</label>
+                            <input type="date" class="w-full mt-1 p-2 border border-gray-300 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200" id="due_date" name="due_date" aria-describedby="due_date_help">
+                            <small id="due_date_help" class="text-xs text-gray-500">Optional due date for tasks.</small>
+                        </div>
+                        <button type="submit" class="btn bg-indigo-600 text-white px-4 py-2 rounded-md font-medium hover:bg-indigo-700 transition-colors duration-200 w-full sm:w-auto">Add Item</button>
                     </form>
-                    <a href="{{ url_for('add_content', user_id=user.id) }}" class="btn btn-info btn-sm">Add Content</a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tasks Card -->
+    <div class="card bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 mb-8">
+        <div class="card-header flex justify-between items-center p-6 border-b border-gray-200">
+            <h3 class="text-lg sm:text-xl font-semibold text-gray-800 flex items-center">
+                <i class="fas fa-tasks mr-3 text-indigo-600"></i> Tasks
+            </h3>
+            <a href="{{ url_for('add_task') }}" class="btn bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 transition-colors duration-200" aria-label="Add new task">
+                <i class="fas fa-plus mr-2"></i> Add New Task
+            </a>
+        </div>
+        <div class="p-6">
+            <div class="overflow-x-auto">
+                <table class="table w-full text-sm text-gray-700">
+                    <thead>
+                        <tr class="bg-gray-100">
+                            <th class="p-3 text-left font-semibold">Title</th>
+                            <th class="p-3 text-left font-semibold">Assigned to</th>
+                            <th class="p-3 text-left font-semibold">Due Date</th>
+                            <th class="p-3 text-left font-semibold">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if tasks %}
+                            {% for task in tasks %}
+                            <tr class="border-b border-gray-200 hover:bg-gray-50 transition-colors duration-200">
+                                <td class="p-3">{{ task.title|default('No Title', true) }}</td>
+                                <td class="p-3">{{ task.user.name|default('Unassigned', true) }}</td>
+                                <td class="p-3">{{ task.due_date.strftime('%Y-%m-%d') if task.due_date else 'N/A' }}</td>
+                                <td class="p-3 flex space-x-2">
+                                    <a href="{{ url_for('edit_task', task_id=task.id) if task.id else '#' }}" class="btn bg-yellow-500 text-white px-3 py-1 rounded-md text-sm font-medium hover:bg-yellow-600 transition-colors duration-200 {% if not task.id %}opacity-50 cursor-not-allowed{% endif %}" aria-label="Edit task {{ task.title|default('No Title', true) }}">
+                                        Edit
+                                    </a>
+                                    <a href="{{ url_for('delete_task', task_id=task.id) if task.id else '#' }}" class="btn bg-red-500 text-white px-3 py-1 rounded-md text-sm font-medium hover:bg-red-600 transition-colors duration-200 {% if not task.id %}opacity-50 cursor-not-allowed{% endif %}" onclick="{% if task.id %}return confirm('Are you sure you want to delete this task?'){% else %}return false{% endif %}" aria-label="Delete task {{ task.title|default('No Title', true) }}">
+                                        Delete
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="4" class="p-3 text-center text-gray-500 italic">No tasks available.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Announcements Card -->
+    <div class="card bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 mb-8">
+        <div class="card-header flex justify-between items-center p-6 border-b border-gray-200">
+            <h3 class="text-lg sm:text-xl font-semibold text-gray-800 flex items-center">
+                <i class="fas fa-bullhorn mr-3 text-indigo-600"></i> Announcements
+            </h3>
+            <a href="{{ url_for('add_announcement') }}" class="btn bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 transition-colors duration-200" aria-label="Add new announcement">
+                <i class="fas fa-plus mr-2"></i> Add New Announcement
+            </a>
+        </div>
+        <div class="p-6">
+            <div class="overflow-x-auto">
+                <table class="table w-full text-sm text-gray-700">
+                    <thead>
+                        <tr class="bg-gray-100">
+                            <th class="p-3 text-left font-semibold">Title</th>
+                            <th class="p-3 text-left font-semibold">Assigned to</th>
+                            <th class="p-3 text-left font-semibold">Description</th>
+                            <th class="p-3 text-left font-semibold">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if announcements %}
+                            {% for announcement in announcements %}
+                            <tr class="border-b border-gray-200 hover:bg-gray-50 transition-colors duration-200">
+                                <td class="p-3">{{ announcement.title|default('No Title', true) }}</td>
+                                <td class="p-3">{{ announcement.user.name|default('Unassigned', true) }}</td>
+                                <td class="p-3">{{ announcement.description|default('No Description', true) }}</td>
+                                <td class="p-3 flex space-x-2">
+                                    <a href="{{ url_for('edit_announcement', announcement_id=announcement.id) if announcement.id else '#' }}" class="btn bg-yellow-500 text-white px-3 py-1 rounded-md text-sm font-medium hover:bg-yellow-600 transition-colors duration-200 {% if not announcement.id %}opacity-50 cursor-not-allowed{% endif %}" aria-label="Edit announcement {{ announcement.title|default('No Title', true) }}">
+                                        Edit
+                                    </a>
+                                    <a href="{{ url_for('delete_announcement', announcement_id=announcement.id) if announcement.id else '#' }}" class="btn bg-red-500 text-white px-3 py-1 rounded-md text-sm font-medium hover:bg-red-600 transition-colors duration-200 {% if not announcement.id %}opacity-50 cursor-not-allowed{% endif %}" onclick="{% if announcement.id %}return confirm('Are you sure you want to delete this announcement?'){% else %}return false{% endif %}" aria-label="Delete announcement {{ announcement.title|default('No Title', true) }}">
+                                        Delete
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="4" class="p-3 text-center text-gray-500 italic">No announcements available.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resources Card -->
+    <div class="card bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 mb-8">
+        <div class="card-header flex justify-between items-center p-6 border-b border-gray-200">
+            <h3 class="text-lg sm:text-xl font-semibold text-gray-800 flex items-center">
+                <i class="fas fa-book mr-3 text-indigo-600"></i> Resources
+            </h3>
+            <a href="{{ url_for('add_resource') }}" class="btn bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 transition-colors duration-200" aria-label="Add new resource">
+                <i class="fas fa-plus mr-2"></i> Add New Resource
+            </a>
+        </div>
+        <div class="p-6">
+            <div class="overflow-x-auto">
+                <table class="table w-full text-sm text-gray-700">
+                    <thead>
+                        <tr class="bg-gray-100">
+                            <th class="p-3 text-left font-semibold">Title</th>
+                            <th class="p-3 text-left font-semibold">Assigned to</th>
+                            <th class="p-3 text-left font-semibold">Description</th>
+                            <th class="p-3 text-left font-semibold">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if resources %}
+                            {% for resource in resources %}
+                            <tr class="border-b border-gray-200 hover:bg-gray-50 transition-colors duration-200">
+                                <td class="p-3">{{ resource.title|default('No Title', true) }}</td>
+                                <td class="p-3">{{ resource.user.name|default('Unassigned', true) }}</td>
+                                <td class="p-3">{{ resource.description|default('No Description', true) }}</td>
+                                <td class="p-3 flex space-x-2">
+                                    <a href="{{ url_for('edit_resource', resource_id=resource.id) if resource.id else '#' }}" class="btn bg-yellow-500 text-white px-3 py-1 rounded-md text-sm font-medium hover:bg-yellow-600 transition-colors duration-200 {% if not resource.id %}opacity-50 cursor-not-allowed{% endif %}" aria-label="Edit resource {{ resource.title|default('No Title', true) }}">
+                                        Edit
+                                    </a>
+                                    <a href="{{ url_for('delete_resource', resource_id=resource.id) if resource.id else '#' }}" class="btn bg-red-500 text-white px-3 py-1 rounded-md text-sm font-medium hover:bg-red-600 transition-colors duration-200 {% if not resource.id %}opacity-50 cursor-not-allowed{% endif %}" onclick="{% if resource.id %}return confirm('Are you sure you want to delete this resource?'){% else %}return false{% endif %}" aria-label="Delete resource {{ resource.title|default('No Title', true) }}">
+                                        Delete
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="4" class="p-3 text-center text-gray-500 italic">No resources available.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
+
+<!-- JavaScript for Modal and Due Date Logic -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const addItemModal = document.getElementById('addItemModal');
+        if (addItemModal) {
+            addItemModal.addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget;
+                const userId = button.getAttribute('data-user-id');
+                const modalUserIdInput = addItemModal.querySelector('.modal-body #modal_user_id');
+                modalUserIdInput.value = userId || '';
+
+                // Reset due date visibility
+                const dueDateGroup = document.getElementById('due_date_group');
+                const itemTypeSelect = document.getElementById('item_type');
+                dueDateGroup.style.display = itemTypeSelect.value === 'task' ? 'block' : 'none';
+            });
+
+            const itemTypeSelect = document.getElementById('item_type');
+            if (itemTypeSelect) {
+                itemTypeSelect.addEventListener('change', function () {
+                    const dueDateGroup = document.getElementById('due_date_group');
+                    dueDateGroup.style.display = this.value === 'task' ? 'block' : 'none';
+                });
+            }
+        }
+    });
+</script>
+
+<!-- Custom CSS for Animations -->
+<style>
+    .animate-fade-in {
+        animation: fadeIn 0.5s ease-in;
+    }
+
+    @keyframes fadeIn {
+        0% { opacity: 0; transform: translateY(10px); }
+        100% { opacity: 1; transform: translateY(0); }
+    }
+</style>
 {% endblock %}

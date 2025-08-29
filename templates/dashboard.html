@@ -3,93 +3,232 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block dashboard_content %}
-<div class="container-fluid mt-4">
-    <h3>Welcome, {{ session.get('userID') }}!</h3>
+<div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Welcome Header -->
+    <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-8 tracking-tight animate-fade-in">
+        Welcome, {{ session.get('name') }}!
+    </h1>
 
-    <hr>
-    <h4>Assigned by Admin</h4>
-    <div class="row mt-4">
-        <!-- Tasks -->
-        <div class="col-md-4">
-            <h5>Tasks</h5>
-            <div class="list-group">
+    <!-- Top Grid: Tasks, Announcements, Resources -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <!-- Tasks Card -->
+        <div class="card bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300">
+            <div class="card-header flex justify-between items-center p-6 border-b border-gray-200">
+                <h3 class="text-lg sm:text-xl font-semibold text-gray-800 flex items-center">
+                    <i class="fas fa-tasks mr-3 text-indigo-600"></i> Tasks Assigned by Admin
+                </h3>
+                <a href="{{ url_for('tasks') }}" class="btn bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 transition-colors duration-200" aria-label="View all tasks">
+                    View All
+                </a>
+            </div>
+            <div class="p-6 space-y-4">
                 {% for task in tasks %}
-                    <div class="list-group-item">
-                        <h6>{{ task.title }}</h6>
-                        <p>{{ task.description }}</p>
+                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-100 hover:bg-gray-100 transition-colors duration-200">
+                        <h4 class="text-base font-medium text-gray-800">{{ task.title }}</h4>
+                        <p class="text-sm text-gray-600 mt-1">{{ task.description }}</p>
                         {% if task.due_date %}
-                            <small>Due: {{ task.due_date.strftime('%Y-%m-%d') }}</small>
+                            <small class="text-xs text-gray-500">Due: {{ task.due_date.strftime('%Y-%m-%d') }}</small>
                         {% endif %}
                     </div>
                 {% else %}
-                    <p>No tasks assigned.</p>
+                    <p class="text-sm text-gray-500 italic text-center">No tasks assigned.</p>
                 {% endfor %}
             </div>
         </div>
 
-        <!-- Announcements -->
-        <div class="col-md-4">
-            <h5>Announcements</h5>
-            <div class="list-group">
+        <!-- Announcements Card -->
+        <div class="card bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300">
+            <div class="card-header flex justify-between items-center p-6 border-b border-gray-200">
+                <h3 class="text-lg sm:text-xl font-semibold text-gray-800 flex items-center">
+                    <i class="fas fa-bullhorn mr-3 text-indigo-600"></i> Announcements from Admin
+                </h3>
+                <a href="{{ url_for('announcements') }}" class="btn bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 transition-colors duration-200" aria-label="View all announcements">
+                    View All
+                </a>
+            </div>
+            <div class="p-6 space-y-4">
                 {% for announcement in announcements %}
-                    <div class="list-group-item">
-                        <h6>{{ announcement.title }}</h6>
-                        <p>{{ announcement.description }}</p>
+                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-100 hover:bg-gray-100 transition-colors duration-200">
+                        <h4 class="text-base font-medium text-gray-800">{{ announcement.title }}</h4>
+                        <p class="text-sm text-gray-600 mt-1">{{ announcement.description }}</p>
+                        {% if announcement.date %}
+                            <small class="text-xs text-gray-500">Posted: {{ announcement.date.strftime('%Y-%m-%d') }}</small>
+                        {% endif %}
                     </div>
                 {% else %}
-                    <p>No announcements.</p>
+                    <p class="text-sm text-gray-500 italic text-center">No announcements available.</p>
                 {% endfor %}
             </div>
         </div>
 
-        <!-- Resources -->
-        <div class="col-md-4">
-            <h5>Resources</h5>
-            <div class="list-group">
+        <!-- Resources Card -->
+        <div class="card bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300">
+            <div class="card-header flex justify-between items-center p-6 border-b border-gray-200">
+                <h3 class="text-lg sm:text-xl font-semibold text-gray-800 flex items-center">
+                    <i class="fas fa-book mr-3 text-indigo-600"></i> Resources from Admin
+                </h3>
+                <a href="{{ url_for('resources') }}" class="btn bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 transition-colors duration-200" aria-label="View all resources">
+                    View All
+                </a>
+            </div>
+            <div class="p-6 space-y-4">
                 {% for resource in resources %}
-                    <div class="list-group-item">
-                        <h6>{{ resource.title }}</h6>
-                        <p>{{ resource.description }}</p>
+                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-100 hover:bg-gray-100 transition-colors duration-200">
+                        <h4 class="text-base font-medium text-gray-800">{{ resource.title }}</h4>
+                        <p class="text-sm text-gray-600 mt-1">{{ resource.description }}</p>
+                        {% if resource.upload_date %}
+                            <small class="text-xs text-gray-500">Uploaded: {{ resource.upload_date.strftime('%Y-%m-%d') }}</small>
+                        {% endif %}
                     </div>
                 {% else %}
-                    <p>No resources provided.</p>
+                    <p class="text-sm text-gray-500 italic text-center">No resources available.</p>
                 {% endfor %}
             </div>
         </div>
     </div>
 
-    <hr class="mt-5">
-    <h4>My Personal Reminders</h4>
-    <div class="row mt-4">
-        <!-- Birthdays -->
-        <div class="col-md-6">
-            <h5>
-                Birthdays 
-                <a href="{{ url_for('birthdays') }}" class="btn btn-sm btn-primary">Manage</a>
-            </h5>
-            <ul class="list-group">
+    <!-- Middle Grid: Birthdays, Movie Alerts -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <!-- Birthdays Card -->
+        <div class="card bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300">
+            <div class="card-header flex justify-between items-center p-6 border-b border-gray-200">
+                <h3 class="text-lg sm:text-xl font-semibold text-gray-800 flex items-center">
+                    <i class="fas fa-birthday-cake mr-3 text-indigo-600"></i> My Birthdays
+                </h3>
+                <a href="{{ url_for('birthdays') }}" class="btn bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 transition-colors duration-200" aria-label="Manage birthdays">
+                    Manage
+                </a>
+            </div>
+            <div class="p-6 space-y-4">
                 {% for birthday in birthdays %}
-                    <li class="list-group-item">{{ birthday.name }} - {{ birthday.date_of_birth.strftime('%B %d') }}</li>
+                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-100 hover:bg-gray-100 transition-colors duration-200">
+                        <h4 class="text-base font-medium text-gray-800">{{ birthday.name }}</h4>
+                        <p class="text-sm text-gray-600 mt-1">Date: {{ birthday.date_of_birth.strftime('%B %d') }}</p>
+                    </div>
                 {% else %}
-                    <li class="list-group-item">No birthday reminders set.</li>
+                    <p class="text-sm text-gray-500 italic text-center">No birthday reminders set.</p>
                 {% endfor %}
-            </ul>
+            </div>
         </div>
 
-        <!-- Movie Alerts -->
-        <div class="col-md-6">
-            <h5>
-                Movie Alerts
-                <a href="{{ url_for('movies') }}" class="btn btn-sm btn-primary">Manage</a>
-            </h5>
-            <ul class="list-group">
+        <!-- Movie Alerts Card -->
+        <div class="card bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300">
+            <div class="card-header flex justify-between items-center p-6 border-b border-gray-200">
+                <h3 class="text-lg sm:text-xl font-semibold text-gray-800 flex items-center">
+                    <i class="fas fa-film mr-3 text-indigo-600"></i> My Movie Alerts
+                </h3>
+                <a href="{{ url_for('movies') }}" class="btn bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 transition-colors duration-200" aria-label="Manage movie alerts">
+                    Manage
+                </a>
+            </div>
+            <div class="p-6 space-y-4">
                 {% for movie in movies %}
-                    <li class="list-group-item">{{ movie.movie_name }} - {{ movie.release_date.strftime('%Y-%m-%d') }}</li>
+                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-100 hover:bg-gray-100 transition-colors duration-200">
+                        <h4 class="text-base font-medium text-gray-800">{{ movie.movie_name }}</h4>
+                        <p class="text-sm text-gray-600 mt-1">Release Date: {{ movie.release_date.strftime('%Y-%m-%d') }}</p>
+                    </div>
                 {% else %}
-                    <li class="list-group-item">No movie alerts set.</li>
+                    <p class="text-sm text-gray-500 italic text-center">No movie alerts set.</p>
                 {% endfor %}
-            </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Grid: Submit Request, My Requests -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Submit Request Card -->
+        <div class="card bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300">
+            <div class="card-header flex justify-between items-center p-6 border-b border-gray-200">
+                <h3 class="text-lg sm:text-xl font-semibold text-gray-800 flex items-center">
+                    <i class="fas fa-paper-plane mr-3 text-indigo-600"></i> Submit a Request to Admin
+                </h3>
+                <a href="{{ url_for('add_request') }}" class="btn bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 transition-colors duration-200" aria-label="View all requests">
+                    View All
+                </a>
+            </div>
+            <div class="p-6 space-y-4">
+                <form action="{{ url_for('add_request') }}" method="POST" class="space-y-4">
+                    <div class="form-group">
+                        <label for="request_type" class="block text-sm font-medium text-gray-700">Request Type</label>
+                        <select class="form-control w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200" id="request_type" name="request_type" required aria-describedby="request_type_help">
+                            <option value="Task">Task</option>
+                            <option value="Announcement">Announcement</option>
+                            <option value="Resource">Resource</option>
+                        </select>
+                        <small id="request_type_help" class="text-xs text-gray-500">Select the type of request.</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="title" class="block text-sm font-medium text-gray-700">Title</label>
+                        <input type="text" class="form-control w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200" id="title" name="title" required aria-describedby="title_help">
+                        <small id="title_help" class="text-xs text-gray-500">Enter a concise title for your request.</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
+                        <textarea class="form-control w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200" id="description" name="description" rows="4" aria-describedby="description_help"></textarea>
+                        <small id="description_help" class="text-xs text-gray-500">Provide details about your request.</small>
+                    </div>
+                    <button type="submit" class="btn bg-indigo-600 text-white px-4 py-2 rounded-md font-medium hover:bg-indigo-700 transition-colors duration-200 w-full sm:w-auto">Submit Request</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- My Requests Card -->
+        <div class="card bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300">
+            <div class="card-header flex justify-between items-center p-6 border-b border-gray-200">
+                <h3 class="text-lg sm:text-xl font-semibold text-gray-800 flex items-center">
+                    <i class="fas fa-clipboard-list mr-3 text-indigo-600"></i> My Submitted Requests
+                </h3>
+                <a href="{{ url_for('add_request') }}" class="btn bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 transition-colors duration-200" aria-label="View all requests">
+                    View All
+                </a>
+            </div>
+            <div class="p-6 space-y-4">
+                <div class="overflow-x-auto">
+                    <table class="table w-full text-sm text-gray-700">
+                        <thead>
+                            <tr class="bg-gray-100">
+                                <th class="p-3 text-left font-semibold">Request Type</th>
+                                <th class="p-3 text-left font-semibold">Title</th>
+                                <th class="p-3 text-left font-semibold">Description</th>
+                                <th class="p-3 text-left font-semibold">Status</th>
+                                <th class="p-3 text-left font-semibold">Admin Message</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for req in requests %}
+                            <tr class="border-b border-gray-200 hover:bg-gray-50 transition-colors duration-200">
+                                <td class="p-3">{{ req.request_type }}</td>
+                                <td class="p-3">{{ req.title }}</td>
+                                <td class="p-3">{{ req.description }}</td>
+                                <td class="p-3">
+                                    <span class="inline-block px-2 py-1 text-xs font-medium rounded-full {{ 'bg-green-100 text-green-800' if req.status == 'Approved' else 'bg-yellow-100 text-yellow-800' if req.status == 'Pending' else 'bg-red-100 text-red-800' }}">
+                                        {{ req.status }}
+                                    </span>
+                                </td>
+                                <td class="p-3">{{ req.admin_message if req.admin_message else 'N/A' }}</td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="5" class="p-3 text-center text-gray-500 italic">No requests submitted yet.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+<!-- Custom CSS for Animations -->
+<style>
+    .animate-fade-in {
+        animation: fadeIn 0.5s ease-in;
+    }
+
+    @keyframes fadeIn {
+        0% { opacity: 0; transform: translateY(10px); }
+        100% { opacity: 1; transform: translateY(0); }
+    }
+</style>
 {% endblock %}

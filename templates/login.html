@@ -3,18 +3,99 @@
 {% block title %}Login{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <h2>Login</h2>
-    <form method="POST" action="{{ url_for('login') }}">
-        <div class="form-group">
-            <label for="userID">User ID</label>
-            <input type="text" class="form-control" id="userID" name="userID" required>
-        </div>
-        <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" class="form-control" id="password" name="password" required>
-        </div>
-        <button type="submit" class="btn btn-primary">Login</button>
-    </form>
+<div class="flex items-center justify-center min-h-screen bg-gray-100">
+    <div class="card bg-white max-w-md w-full rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 p-6">
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 text-center mb-6 animate-fade-in">
+            Login
+        </h1>
+        <form method="POST" action="{{ url_for('login') }}" class="space-y-6" id="loginForm">
+            <div class="form-group">
+                <label for="userID" class="block text-sm font-medium text-gray-700">User ID</label>
+                <input type="text" class="w-full mt-1 p-2 border border-gray-300 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200" id="userID" name="userID" required aria-describedby="userID_help userID_error">
+                <small id="userID_help" class="text-xs text-gray-500">Enter your unique user ID.</small>
+                <small id="userID_error" class="text-xs text-red-500 hidden">User ID is required.</small>
+            </div>
+            <div class="form-group">
+                <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                <input type="password" class="w-full mt-1 p-2 border border-gray-300 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200" id="password" name="password" required aria-describedby="password_help password_error">
+                <small id="password_help" class="text-xs text-gray-500">Enter your password.</small>
+                <small id="password_error" class="text-xs text-red-500 hidden">Password is required.</small>
+            </div>
+            <button type="submit" class="btn bg-indigo-600 text-white w-full px-4 py-2 rounded-md font-medium hover:bg-indigo-700 transition-colors duration-200" aria-label="Log in to your account">Login</button>
+            <div class="text-center mt-4 text-sm text-gray-600">
+                <p>Don't have an account? <a href="{{ url_for('register') }}" class="text-indigo-600 hover:underline" aria-label="Sign up for a new account">Sign up</a></p>
+            </div>
+        </form>
+    </div>
 </div>
+
+<!-- JavaScript for Client-Side Validation -->
+<script>
+    const form = document.getElementById('loginForm');
+    const userIDInput = document.getElementById('userID');
+    const passwordInput = document.getElementById('password');
+    const userIDError = document.getElementById('userID_error');
+    const passwordError = document.getElementById('password_error');
+
+    form.addEventListener('submit', function (event) {
+        let isValid = true;
+
+        // Validate userID
+        if (!userIDInput.value.trim()) {
+            userIDInput.setCustomValidity('User ID is required.');
+            userIDError.classList.remove('hidden');
+            isValid = false;
+        } else {
+            userIDInput.setCustomValidity('');
+            userIDError.classList.add('hidden');
+        }
+
+        // Validate password
+        if (!passwordInput.value) {
+            passwordInput.setCustomValidity('Password is required.');
+            passwordError.classList.remove('hidden');
+            isValid = false;
+        } else {
+            passwordInput.setCustomValidity('');
+            passwordError.classList.add('hidden');
+        }
+
+        if (!isValid) {
+            event.preventDefault();
+        }
+    });
+
+    // Real-time validation for immediate feedback
+    userIDInput.addEventListener('input', function () {
+        if (!this.value.trim()) {
+            this.setCustomValidity('User ID is required.');
+            userIDError.classList.remove('hidden');
+        } else {
+            this.setCustomValidity('');
+            userIDError.classList.add('hidden');
+        }
+    });
+
+    passwordInput.addEventListener('input', function () {
+        if (!this.value) {
+            this.setCustomValidity('Password is required.');
+            passwordError.classList.remove('hidden');
+        } else {
+            this.setCustomValidity('');
+            passwordError.classList.add('hidden');
+        }
+    });
+</script>
+
+<!-- Custom CSS for Animations -->
+<style>
+    .animate-fade-in {
+        animation: fadeIn 0.5s ease-in;
+    }
+
+    @keyframes fadeIn {
+        0% { opacity: 0; transform: translateY(10px); }
+        100% { opacity: 1; transform: translateY(0); }
+    }
+</style>
 {% endblock %}

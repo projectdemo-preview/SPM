@@ -1,141 +1,158 @@
-/* General Body Styles */
-body {
-    background-color: #0f62aa; /* Main background color */
-}
-
-/* Hero Section */
-.hero {
-    background-size: cover; /* Cover the entire hero section */
-    background-position: center; /* Center the background image */
-    color: white; /* Ensures hero text is readable */
-}
-
-/* Card Styles */
-.card {
-    border: none; /* Clean card appearance without borders */
-}
-
-.card-header {
-    font-weight: bold; /* Bold font for card headers */
-}
-
-.shadow {
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Soft shadow for cards */
-}
-
-/* Fotter */
-
-
+/* Tailwind CSS Directives */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Custom styles for the Project Management Software */
+/* Base Styles - Mimicking Jira's overall aesthetic */
 body {
-    @apply bg-gray-100 font-sans text-gray-800;
+    @apply bg-background font-sans text-text;
 }
 
-/* Navbar */
-.navbar {
-    @apply bg-gray-900 text-white shadow-lg;
-}
-.navbar-brand {
-    @apply text-xl font-bold tracking-tight;
-}
-.nav-link {
-    @apply px-3 py-2 text-sm font-medium hover:bg-gray-700 rounded-md transition-colors;
-}
-.navbar-toggler {
-    @apply text-white;
+/* Top Navigation Bar */
+.top-nav {
+    @apply bg-secondary text-white p-4 shadow-md;
 }
 
-/* Main Container */
-.container-fluid {
-    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+.top-nav a {
+    @apply text-gray-300 hover:text-white;
 }
 
-/* Alerts */
-.alert-container {
-    @apply mb-4;
-}
-.alert {
-    @apply p-4 rounded-lg shadow-md mb-2;
-}
-.alert-success {
-    @apply bg-green-100 text-green-800 border-l-4 border-green-500;
-}
-.alert-danger {
-    @apply bg-red-100 text-red-800 border-l-4 border-red-500;
-}
-.alert-info {
-    @apply bg-blue-100 text-blue-800 border-l-4 border-blue-500;
-}
-.alert-warning {
-    @apply bg-yellow-100 text-yellow-800 border-l-4 border-yellow-500;
-}
-.btn-close {
-    @apply text-gray-500 hover:text-gray-700;
+/* Sidebar Navigation */
+.sidebar {
+    @apply bg-secondary text-gray-300 p-4 shadow-lg;
 }
 
-/* Dashboard */
+.sidebar a {
+    @apply block px-3 py-2 rounded-md hover:bg-gray-700;
+}
+
+.sidebar-active-link {
+    @apply bg-gray-700 text-white;
+    box-shadow: inset 3px 0 0 0 theme('colors.primary.DEFAULT');
+}
+
+/* Main Content Area */
+main {
+    @apply p-8;
+}
+
+/* Headings */
+h1 {
+    @apply text-3xl font-bold mb-6 text-text;
+}
+
+h2 {
+    @apply text-2xl font-semibold mb-5 text-text;
+}
+
 h3 {
-    @apply text-2xl font-semibold text-gray-900 mb-4;
-}
-h4 {
-    @apply text-xl font-medium text-gray-800 mt-6 mb-3;
-}
-h5 {
-    @apply text-lg font-medium text-gray-700 mb-2;
-}
-hr {
-    @apply border-gray-300 my-6;
+    @apply text-xl font-semibold mb-4 text-text;
 }
 
-/* List Groups */
-.list-group {
-    @apply space-y-3;
+h4 {
+    @apply text-lg font-semibold mb-3 text-text;
 }
-.list-group-item {
-    @apply bg-white p-4 rounded-lg shadow-sm border border-gray-200 hover:bg-gray-50 transition-colors;
+
+/* Cards/Panels */
+.card {
+    @apply bg-white rounded-lg shadow-md p-6 mb-6;
+    border: 1px solid theme('colors.border'); /* Subtle border */
+    box-shadow: 0 1px 2px 0 rgba(9, 30, 66, 0.08), 0 0 0 1px rgba(9, 30, 66, 0.08);
 }
-.list-group-item h6 {
-    @apply text-base font-semibold text-gray-900;
+
+.card-header {
+    @apply text-lg font-semibold mb-4 text-text;
 }
-.list-group-item p {
-    @apply text-sm text-gray-600 mt-1;
+
+/* Tables */
+.table {
+    @apply min-w-full divide-y divide-gray-200;
 }
-.list-group-item small {
-    @apply text-xs text-gray-500;
+
+.table thead th {
+    @apply px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider;
+    background-color: #f4f5f7; /* Light header background */
+}
+
+.table tbody td {
+    @apply px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-b border-gray-200;
+}
+
+.table tbody tr:nth-child(odd) {
+    @apply bg-white;
+}
+
+.table tbody tr:nth-child(even) {
+    @apply bg-gray-50;
+}
+
+.table tbody tr:hover {
+    @apply bg-gray-100;
+}
+
+/* Forms */
+.form-group label {
+    @apply block text-sm font-medium text-gray-700 mb-1;
+}
+
+.form-control {
+    @apply block w-full rounded-md border-border shadow-sm sm:text-sm;
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.form-control:focus {
+    border-color: theme('colors.primary.DEFAULT');
+    box-shadow: 0 0 0 2px theme('colors.primary.DEFAULT', 0.2); /* Subtle blue ring */
+    outline: none;
 }
 
 /* Buttons */
 .btn {
-    @apply inline-flex items-center px-4 py-2 rounded-md font-medium transition-colors;
+    @apply inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm transition-all duration-200 ease-in-out;
+    box-shadow: 0 1px 1px rgba(9, 30, 66, 0.08), 0 0 0 1px rgba(9, 30, 66, 0.08);
 }
+
+.btn:hover {
+    box-shadow: 0 2px 4px rgba(9, 30, 66, 0.16), 0 0 0 1px rgba(9, 30, 66, 0.08);
+}
+
 .btn-primary {
-    @apply bg-blue-600 text-white hover:bg-blue-700;
-}
-.btn-sm {
-    @apply px-3 py-1 text-sm;
+    @apply bg-primary text-white hover:bg-primary-dark;
 }
 
-/* Responsive Adjustments */
-@media (max-width: 768px) {
-    .navbar-nav {
-        @apply mt-2 space-y-2;
-    }
-    .nav-link {
-        @apply block px-2 py-1;
-    }
-    .row {
-        @apply space-y-6;
-    }
-    .col-md-4, .col-md-6 {
-        @apply w-full;
-    }
+.btn-success {
+    @apply bg-success text-white hover:bg-green-700; /* Using Tailwind's green-700 for hover as we didn't define a dark success */
 }
 
-/* Custom Card-like Styling for Dashboard Sections */
-.row > div {
-    @apply mb-6;
+.btn-danger {
+    @apply bg-danger text-white hover:bg-red-700; /* Using Tailwind's red-700 for hover as we didn't define a dark danger */
 }
+
+.btn-warning {
+    @apply bg-warning text-white hover:bg-yellow-600; /* Using Tailwind's yellow-600 for hover as we didn't define a dark warning */
+}
+
+.btn-info {
+    @apply bg-info text-white hover:bg-blue-600; /* Using Tailwind's blue-600 for hover as we didn't define a dark info */
+}
+
+/* Alerts */
+.alert {
+    @apply p-4 rounded-lg shadow-md mb-4;
+    border-left: 4px solid; /* For color coding */
+}
+
+.alert-success {
+    @apply bg-green-100 text-green-800 border-green-500;
+}
+.alert-danger {
+    @apply bg-red-100 text-red-800 border-red-500;
+}
+.alert-info {
+    @apply bg-blue-100 text-blue-800 border-blue-500;
+}
+.alert-warning {
+    @apply bg-yellow-100 text-yellow-800 border-yellow-500;
+}
+
+

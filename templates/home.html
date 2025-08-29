@@ -1,11 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <title>All-in-One Planner</title>
-</head>
-<body>
-    <h1>Welcome to All-in-One Planner</h1>
-    <a href="{{ url_for('login') }}">Login</a> | 
-    <a href="{{ url_for('register') }}">Register</a>
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% block title %}Welcome{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-center min-h-screen bg-gray-100">
+    <div class="bg-white p-8 rounded-lg shadow-lg text-center">
+        <h1 class="text-4xl font-bold text-gray-800 mb-4">Welcome to All-in-One Planner</h1>
+        <p class="text-lg text-gray-600 mb-6">Your personal and team management solution.</p>
+        <div class="space-x-4">
+            <a href="{{ url_for('login') }}" class="btn btn-primary">Login</a>
+            <a href="{{ url_for('register') }}" class="btn btn-info">Register</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

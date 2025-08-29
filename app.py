@@ -1,75 +1,32 @@
 # app.py
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, url_for, flash, redirect, request, session
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from datetime import datetime, timedelta
+from apscheduler.schedulers.background import BackgroundScheduler
+import atexit
+import pytz
+from models import User, Announcement, Resource, Movie, Birthday, Task
+from config import Config
+import os
+import requests
+from sqlalchemy import or_
 from functools import wraps
 import os
+from models import db, User, Task, Announcement, Resource, Birthday, Movie, Request
+from datetime import datetime
+from config import Config
 
-# -----------------------------
+# ----------------------------_
 # Configuration
-# -----------------------------
+# ----------------------------_
 app = Flask(__name__)
-
-# Secret key for session/flash
-app.secret_key = os.environ.get('SECRET_KEY', 'supersecretkey')
-
-# Use SQLite for free plan
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///mydb.sqlite3'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config.from_object(Config)
 
 # Initialize DB
-db = SQLAlchemy(app)
+db.init_app(app)
 
-with app.app_context():
-    db.create_all()
 
-# -----------------------------
-# Models (Example Structure)
-# -----------------------------
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    userID = db.Column(db.String(50), unique=True, nullable=False)
-    name = db.Column(db.String(100))
-    email = db.Column(db.String(100), unique=True)
-    password = db.Column(db.String(200))
-    is_admin = db.Column(db.Boolean, default=False)
-    domain = db.Column(db.String(100))
-    position = db.Column(db.String(50))
-    duration = db.Column(db.String(50))
-
-class Task(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(200))
-    description = db.Column(db.Text)
-    due_date = db.Column(db.String(50))
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-
-class Announcement(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(200))
-    description = db.Column(db.Text)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-
-class Resource(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(200))
-    description = db.Column(db.Text)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-
-class Birthday(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100))
-    date_of_birth = db.Column(db.String(50))
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-
-class MovieAlert(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    movie_name = db.Column(db.String(100))
-    release_date = db.Column(db.String(50))
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-
-# -----------------------------
-# Create DB and default admin
-# -----------------------------
 with app.app_context():
     db.create_all()
     if not User.query.filter_by(userID='admin').first():
@@ -77,15 +34,15 @@ with app.app_context():
             userID='admin',
             name='Admin User',
             email='admin@example.com',
-            password='admin',  # Consider hashing for production
+            password='admin',
             is_admin=True
         )
         db.session.add(admin_user)
         db.session.commit()
 
-# -----------------------------
+# ----------------------------_
 # Role-based decorators
-# -----------------------------
+# ----------------------------_
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -104,9 +61,9 @@ def admin_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
-# -----------------------------
+# ----------------------------_
 # Routes
-# -----------------------------
+# ----------------------------_
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -122,8 +79,8 @@ def register():
         position = request.form.get('position')
         duration = request.form.get('duration')
 
-        if User.query.filter((User.userID == userID) | (User.email == email)).first():
-            flash('User ID or Email already exists!', 'danger')
+        if User.query.filter((User.userID == userID) | (User.email == email) | (User.name == name)).first():
+            flash('User ID, Email, or Name already exists!', 'danger')
             return redirect(url_for('register'))
 
         new_user = User(
@@ -157,6 +114,7 @@ def login():
             session['user_id'] = user.id
             session['userID'] = user.userID
             session['is_admin'] = user.is_admin
+            session['name'] = user.name
 
             if user.is_admin:
                 return redirect(url_for('admin_dashboard'))
@@ -173,37 +131,587 @@ def logout():
     flash('Logged out successfully!', 'info')
     return redirect(url_for('login'))
 
-# -----------------------------
+@app.route('/forgot_password', methods=['GET', 'POST'])
+def forgot_password():
+    return render_template('forgot_password.html')
+
+
+
+# ----------------------------_
 # User & Admin Dashboards
-# -----------------------------
+# ----------------------------_
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    try:
-        user_id = session['user_id']
-        tasks = Task.query.filter_by(user_id=user_id).all()
-        announcements = Announcement.query.filter_by(user_id=user_id).all()
-        resources = Resource.query.filter_by(user_id=user_id).all()
-        birthdays = Birthday.query.filter_by(user_id=user_id).all()
-        movies = MovieAlert.query.filter_by(user_id=user_id).all()
-        return render_template('dashboard.html',
-                            tasks=tasks, announcements=announcements, resources=resources,
-                            birthdays=birthdays, movies=movies)
-    except Exception as e:
-        return f"Error in dashboard: {e}"
-
+    user_id = session['user_id']
+    tasks = Task.query.filter_by(user_id=user_id).limit(2).all()
+    announcements = Announcement.query.filter_by(user_id=user_id).limit(2).all()
+    resources = Resource.query.filter_by(user_id=user_id).limit(2).all()
+    birthdays = Birthday.query.filter_by(user_id=user_id).all()
+    movies = Movie.query.filter_by(user_id=user_id).all()
+    requests = Request.query.filter_by(user_id=user_id).limit(2).all()
+    return render_template('dashboard.html',
+                        tasks=tasks, announcements=announcements, resources=resources,
+                        birthdays=birthdays, movies=movies, requests=requests)
 
 @app.route('/admin/dashboard')
 @login_required
 @admin_required
 def admin_dashboard():
-    users = User.query.filter_by(is_admin=False).all()
-    return render_template('admin_dashboard.html', users=users)
+    users = User.query.limit(5).all()
+    tasks = Task.query.limit(5).all()
+    announcements = Announcement.query.limit(5).all()
+    resources = Resource.query.limit(5).all()
+    return render_template('admin_dashboard.html', users=users, tasks=tasks, announcements=announcements, resources=resources)
 
-# Additional admin/user routes remain the same as your original code
+@app.route('/admin/tasks')
+@login_required
+@admin_required
+def manage_tasks():
+    tasks = Task.query.all()
+    return render_template('manage_tasks.html', tasks=tasks)
+
+# ----------------------------_
+# Task Management
+# ----------------------------_
+@app.route('/tasks')
+@login_required
+def tasks():
+    user_id = session['user_id']
+    tasks = Task.query.filter_by(user_id=user_id).all()
+    return render_template('tasks.html', tasks=tasks)
+
+@app.route('/add_task', methods=['GET', 'POST'])
+@login_required
+def add_task():
+    if request.method == 'POST':
+        title = request.form['title']
+        description = request.form['description']
+        due_date_str = request.form['due_date']
+        due_date = datetime.strptime(due_date_str, '%Y-%m-%d') if due_date_str else None
+        user_id = session['user_id']
+        new_task = Task(title=title, description=description, due_date=due_date, user_id=user_id)
+        db.session.add(new_task)
+        db.session.commit()
+        flash('Task added successfully!', 'success')
+
+        # Check admin using session
+        if session.get('is_admin'):
+            return redirect(url_for('manage_tasks'))
+        else:
+            return redirect(url_for('tasks'))
+
+    return render_template('add_task.html')
+
+@app.route('/edit_task/<int:task_id>', methods=['GET', 'POST'])
+@login_required
+def edit_task(task_id):
+    task = Task.query.get_or_404(task_id)
+    if task.user_id != session['user_id']:
+        flash('You do not have permission to edit this task.', 'danger')
+        return redirect(url_for('tasks'))
+    if request.method == 'POST':
+        task.title = request.form['title']
+        task.description = request.form['description']
+        due_date_str = request.form['due_date']
+        task.due_date = datetime.strptime(due_date_str, '%Y-%m-%d') if due_date_str else None
+        db.session.commit()
+        flash('Task updated successfully!', 'success')
+        if current_user.is_admin:
+            return redirect(url_for('manage_tasks'))
+        else:
+            return redirect(url_for('tasks'))
+    return render_template('edit_task.html', task=task)
+
+@app.route('/delete_task/<int:task_id>', methods=['POST'])
+@login_required
+def delete_task(task_id):
+    task = Task.query.get_or_404(task_id)
+
+    # Optional: prevent non-owners from deleting
+    if not session.get('is_admin') and task.user_id != session['user_id']:
+        flash('You do not have permission to delete this task.', 'danger')
+        return redirect(url_for('tasks'))
+
+    db.session.delete(task)
+    db.session.commit()
+    flash('Task deleted successfully!', 'success')
+
+    if session.get('is_admin'):
+        return redirect(url_for('manage_tasks'))
+    else:
+        return redirect(url_for('tasks'))
+
+
+
+
+
+
+
+
+# ----------------------------_
+# Announcement Management (Admin)
+# ----------------------------_
+@app.route('/admin/announcements')
+@login_required
+@admin_required
+def manage_announcements():
+    announcements = Announcement.query.all()
+    return render_template('manage_announcements.html', announcements=announcements)
+
+@app.route('/admin/add_announcement', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def add_announcement():
+    if request.method == 'POST':
+        title = request.form['title']
+        description = request.form['description']
+        user_id = session['user_id']
+        new_announcement = Announcement(title=title, description=description, user_id=user_id)
+        db.session.add(new_announcement)
+        db.session.commit()
+        flash('Announcement added successfully!', 'success')
+        return redirect(url_for('admin_dashboard'))
+    return render_template('add_announcement.html')
+
+@app.route('/admin/edit_announcement/<int:announcement_id>', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def edit_announcement(announcement_id):
+    announcement = Announcement.query.get_or_404(announcement_id)
+    if request.method == 'POST':
+        announcement.title = request.form['title']
+        announcement.description = request.form['description']
+        db.session.commit()
+        flash('Announcement updated successfully!', 'success')
+        return redirect(url_for('admin_dashboard'))
+    return render_template('edit_announcement.html', announcement=announcement)
+
+@app.route('/admin/delete_announcement/<int:announcement_id>')
+@login_required
+@admin_required
+def delete_announcement(announcement_id):
+    announcement = Announcement.query.get_or_404(announcement_id)
+    db.session.delete(announcement)
+    db.session.commit()
+    flash('Announcement deleted successfully!', 'success')
+    return redirect(url_for('admin_dashboard'))
+
+# ----------------------------_
+# Resource Management (Admin)
+# ----------------------------_
+@app.route('/admin/resources')
+@login_required
+@admin_required
+def manage_resources():
+    resources = Resource.query.all()
+    return render_template('manage_resources.html', resources=resources)
+
+@app.route('/admin/add_resource', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def add_resource():
+    if request.method == 'POST':
+        title = request.form['title']
+        description = request.form['description']
+        user_id = session['user_id']
+        new_resource = Resource(title=title, description=description, user_id=user_id)
+        db.session.add(new_resource)
+        db.session.commit()
+        flash('Resource added successfully!', 'success')
+        return redirect(url_for('admin_dashboard'))
+    return render_template('add_resource.html')
+
+@app.route('/admin/edit_resource/<int:resource_id>', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def edit_resource(resource_id):
+    resource = Resource.query.get_or_404(resource_id)
+    if request.method == 'POST':
+        resource.title = request.form['title']
+        resource.description = request.form['description']
+        db.session.commit()
+        flash('Resource updated successfully!', 'success')
+        return redirect(url_for('admin_dashboard'))
+    return render_template('edit_resource.html', resource=resource)
+
+@app.route('/admin/delete_resource/<int:resource_id>')
+@login_required
+@admin_required
+def delete_resource(resource_id):
+    resource = Resource.query.get_or_404(resource_id)
+    db.session.delete(resource)
+    db.session.commit()
+    flash('Resource deleted successfully!', 'success')
+    return redirect(url_for('admin_dashboard'))
+
+# ----------------------------_
+# Announcement Management (User)
+# ----------------------------_
+@app.route('/announcements')
+@login_required
+def announcements():
+    user_id = session['user_id']
+    announcements = Announcement.query.all()
+    return render_template('announcements.html', announcements=announcements)
+
+# ----------------------------_
+# Resource Management (User)
+# ----------------------------_
+@app.route('/resources')
+@login_required
+def resources():
+    user_id = session['user_id']
+    resources = Resource.query.all()
+    return render_template('resources.html', resources=resources)
+
+# ----------------------------_
+# User Management (Admin)
+# ----------------------------_
+@app.route('/admin/users')
+@login_required
+@admin_required
+def manage_users():
+    users = User.query.all()
+    return render_template('manage_users.html', users=users)
+
+@app.route('/admin/edit_user/<int:user_id>', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def edit_user(user_id):
+    user = User.query.get_or_404(user_id)
+    if request.method == 'POST':
+        user.name = request.form['name']
+        user.email = request.form['email']
+        user.domain = request.form.get('domain')
+        user.position = request.form.get('position')
+        user.duration = request.form.get('duration')
+        user.is_admin = 'is_admin' in request.form
+        db.session.commit()
+        flash('User updated successfully!', 'success')
+        return redirect(url_for('manage_users'))
+    return render_template('edit_user.html', user=user)
+
+@app.route('/admin/delete_user/<int:user_id>')
+@login_required
+@admin_required
+def delete_user(user_id):
+    user = User.query.get_or_404(user_id)
+    db.session.delete(user)
+    db.session.commit()
+    flash('User deleted successfully!', 'success')
+    return redirect(url_for('manage_users'))
+
+# ----------------------------_
+# User Profile Management
+# ----------------------------_
+@app.route('/profile')
+@login_required
+def profile():
+    user_id = session['user_id']
+    user = User.query.get_or_404(user_id)
+    return render_template('profile.html', user=user)
+
+# ----------------------------_
+# Birthday Management
+# ----------------------------_
+@app.route('/birthdays')
+@login_required
+def birthdays():
+    user_id = session['user_id']
+    birthdays = Birthday.query.filter_by(user_id=user_id).all()
+    return render_template('birthdays.html', birthdays=birthdays)
+
+@app.route('/add_birthday', methods=['GET', 'POST'])
+@login_required
+def add_birthday():
+    if request.method == 'POST':
+        name = request.form['name']
+        date_of_birth_str = request.form['date_of_birth']
+        date_of_birth = datetime.strptime(date_of_birth_str, '%Y-%m-%d').date()
+        email = request.form['email']
+        subject = request.form.get('subject')
+        message = request.form.get('message')
+        user_id = session['user_id']
+        new_birthday = Birthday(name=name, date_of_birth=date_of_birth, email=email, subject=subject, message=message, user_id=user_id)
+        db.session.add(new_birthday)
+        db.session.commit()
+        flash('Birthday added successfully!', 'success')
+        return redirect(url_for('birthdays'))
+    return render_template('add_birthday.html')
+
+@app.route('/edit_birthday/<int:birthday_id>', methods=['GET', 'POST'])
+@login_required
+def edit_birthday(birthday_id):
+    birthday = Birthday.query.get_or_404(birthday_id)
+    if birthday.user_id != session['user_id']:
+        flash('You do not have permission to edit this birthday.', 'danger')
+        return redirect(url_for('birthdays'))
+    if request.method == 'POST':
+        birthday.name = request.form['name']
+        date_of_birth_str = request.form['date_of_birth']
+        birthday.date_of_birth = datetime.strptime(date_of_birth_str, '%Y-%m-%d').date()
+        birthday.email = request.form['email']
+        birthday.subject = request.form.get('subject')
+        birthday.message = request.form.get('message')
+        db.session.commit()
+        flash('Birthday updated successfully!', 'success')
+        return redirect(url_for('birthdays'))
+    return render_template('edit_birthday.html', birthday=birthday)
+
+@app.route('/delete_birthday/<int:birthday_id>')
+@login_required
+def delete_birthday(birthday_id):
+    birthday = Birthday.query.get_or_404(birthday_id)
+    if birthday.user_id != session['user_id']:
+        flash('You do not have permission to delete this birthday.', 'danger')
+        return redirect(url_for('birthdays'))
+    db.session.delete(birthday)
+    db.session.commit()
+    flash('Birthday deleted successfully!', 'success')
+    return redirect(url_for('birthdays'))
+
+# ----------------------------_
+# Movie Management
+# ----------------------------_
+@app.route('/movies')
+@login_required
+def movies():
+    user_id = session['user_id']
+    movies = Movie.query.filter_by(user_id=user_id).all()
+    return render_template('movies.html', movies=movies)
+
+@app.route('/add_movie', methods=['GET', 'POST'])
+@login_required
+def add_movie():
+    if request.method == 'POST':
+        movie_name = request.form['movie_name']
+        release_date_str = request.form['release_date']
+        release_date = datetime.strptime(release_date_str, '%Y-%m-%d').date()
+        user_id = session['user_id']
+        new_movie = Movie(movie_name=movie_name, release_date=release_date, user_id=user_id)
+        db.session.add(new_movie)
+        db.session.commit()
+        flash('Movie added successfully!', 'success')
+        return redirect(url_for('movies'))
+    return render_template('add_movie.html')
+
+@app.route('/edit_movie/<int:movie_id>', methods=['GET', 'POST'])
+@login_required
+def edit_movie(movie_id):
+    movie = Movie.query.get_or_404(movie_id)
+    if movie.user_id != session['user_id']:
+        flash('You do not have permission to edit this movie.', 'danger')
+        return redirect(url_for('movies'))
+    if request.method == 'POST':
+        movie.movie_name = request.form['movie_name']
+        release_date_str = request.form['release_date']
+        movie.release_date = datetime.strptime(release_date_str, '%Y-%m-%d').date()
+        db.session.commit()
+        flash('Movie updated successfully!', 'success')
+        return redirect(url_for('movies'))
+    return render_template('edit_movie.html', movie=movie)
+
+@app.route('/delete_movie/<int:movie_id>')
+@login_required
+def delete_movie(movie_id):
+    movie = Movie.query.get_or_404(movie_id)
+    if movie.user_id != session['user_id']:
+        flash('You do not have permission to delete this movie.', 'danger')
+        return redirect(url_for('movies'))
+    db.session.delete(movie)
+    db.session.commit()
+    flash('Movie deleted successfully!', 'success')
+    return redirect(url_for('movies'))
+
+@app.route('/admin/add', methods=['POST'])
+@login_required
+@admin_required
+def admin_add():
+    item_type = request.form.get('item_type')
+    title = request.form.get('title')
+    description = request.form.get('description')
+    user_id = request.form.get('user_id')
+
+    if not all([item_type, title, user_id]):
+        flash('Missing required fields!', 'danger')
+        return redirect(url_for('admin_dashboard'))
+
+    if item_type == 'task':
+        due_date_str = request.form.get('due_date')
+        due_date = datetime.strptime(due_date_str, '%Y-%m-%d') if due_date_str else None
+        new_item = Task(title=title, description=description, due_date=due_date, user_id=user_id)
+    elif item_type == 'announcement':
+        new_item = Announcement(title=title, description=description, user_id=user_id)
+    elif item_type == 'resource':
+        new_item = Resource(title=title, description=description, user_id=user_id)
+    else:
+        flash('Invalid item type!', 'danger')
+        return redirect(url_for('admin_dashboard'))
+    
+    db.session.add(new_item)
+    db.session.commit()
+    flash(f'{item_type.capitalize()} added successfully!', 'success')
+    return redirect(url_for('admin_dashboard'))
+
+@app.route('/my_requests')
+@login_required
+def my_requests():
+    user_id = session['user_id']
+    requests = Request.query.filter_by(user_id=user_id).all()
+    return render_template('my_requests.html', requests=requests)
+
+# -----------------------------
+# Team Management (Admin)
+# -----------------------------
+""" 
+@app.route('/admin/teams')
+@login_required
+@admin_required
+def manage_teams():
+    teams = Team.query.all()
+    return render_template('manage_teams.html', teams=teams)
+
+@app.route('/admin/add_team', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def add_team():
+    if request.method == 'POST':
+        name = request.form['name']
+        description = request.form.get('description')
+        admin_id = current_user.id # The admin creating the team
+
+        new_team = Team(name=name, description=description, admin_id=admin_id)
+        db.session.add(new_team)
+        db.session.commit()
+        flash('Team added successfully!', 'success')
+        return redirect(url_for('manage_teams'))
+    return render_template('add_team.html')
+
+@app.route('/admin/edit_team/<int:team_id>', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def edit_team(team_id):
+    team = Team.query.get_or_404(team_id)
+    if request.method == 'POST':
+        team.name = request.form['name']
+        team.description = request.form.get('description')
+        db.session.commit()
+        flash('Team updated successfully!', 'success')
+        return redirect(url_for('manage_teams'))
+    return render_template('edit_team.html', team=team)
+
+@app.route('/admin/delete_team/<int:team_id>', methods=['POST'])
+@login_required
+@admin_required
+def delete_team(team_id):
+    team = Team.query.get_or_404(team_id)
+    db.session.delete(team)
+    db.session.commit()
+    flash('Team deleted successfully!', 'success')
+    return redirect(url_for('manage_teams'))
+
+@app.route('/admin/teams/<int:team_id>/members', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def manage_team_members(team_id):
+    team = Team.query.get_or_404(team_id)
+    all_users = User.query.all()
+    
+    if request.method == 'POST':
+        user_id = request.form.get('user_id')
+        action = request.form.get('action') # 'add' or 'remove'
+        
+        user = User.query.get_or_404(user_id)
+        
+        if action == 'add':
+            user.team_id = team.id
+            flash(f'{user.name} added to {team.name}!', 'success')
+        elif action == 'remove':
+            user.team_id = None # Remove from team
+            flash(f'{user.name} removed from {team.name}!', 'success')
+        
+        db.session.commit()
+        return redirect(url_for('manage_team_members', team_id=team.id))
+        
+    return render_template('manage_team_members.html', team=team, all_users=all_users)
+    
+    """
+
+# -----------------------------
+# Request Management
+# -----------------------------
+@app.route('/add_request', methods=['POST'])
+@login_required
+def add_request():
+    request_type = request.form.get('request_type')
+    title = request.form.get('title')
+    description = request.form.get('description')
+    user_id = session['user_id']
+
+    if not all([request_type, title]):
+        flash('Missing required fields!', 'danger')
+        return redirect(url_for('dashboard'))
+
+    new_request = Request(
+        user_id=user_id,
+        request_type=request_type,
+        title=title,
+        description=description
+    )
+    db.session.add(new_request)
+    db.session.commit()
+    flash('Your request has been submitted and is pending approval.', 'success')
+    return redirect(url_for('dashboard'))
+
+@app.route('/admin/requests')
+@login_required
+@admin_required
+def manage_requests():
+    requests = Request.query.filter_by(status='Pending').all()
+    return render_template('admin_requests.html', requests=requests)
+
+@app.route('/admin/approve_request/<int:request_id>', methods=['POST'])
+@login_required
+@admin_required
+def approve_request(request_id):
+    req = Request.query.get_or_404(request_id)
+    admin_message = request.form.get('admin_message')
+    if req.request_type == 'Task':
+        new_item = Task(title=req.title, description=req.description, user_id=req.user_id)
+    elif req.request_type == 'Announcement':
+        new_item = Announcement(title=req.title, description=req.description, user_id=req.user_id)
+    elif req.request_type == 'Resource':
+        new_item = Resource(title=req.title, description=req.description, user_id=req.user_id)
+    else:
+        flash('Invalid request type!', 'danger')
+        return redirect(url_for('manage_requests'))
+
+    db.session.add(new_item)
+    req.status = 'Approved'
+    req.admin_message = admin_message
+    db.session.commit()
+    flash('Request approved and item added.', 'success')
+    return redirect(url_for('manage_requests'))
+
+@app.route('/admin/reject_request/<int:request_id>', methods=['POST'])
+@login_required
+@admin_required
+def reject_request(request_id):
+    req = Request.query.get_or_404(request_id)
+    admin_message = request.form.get('admin_message')
+    req.status = 'Rejected'
+    req.admin_message = admin_message
+    db.session.commit()
+    flash('Request rejected.', 'success')
+    return redirect(url_for('manage_requests'))
+
+
 # -----------------------------
 # Run
 # -----------------------------
 
+
+
 if __name__ == '__main__':
-    app.run(debug=False)
+    app.run(debug=True, host="0.0.0.0")

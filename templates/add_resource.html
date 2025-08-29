@@ -1,0 +1,106 @@
+{% extends 'dashboard_base.html' %}
+
+{% block title %}Add Resource{% endblock %}
+
+{% block dashboard_content %}
+<div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Page Header -->
+    <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-8 tracking-tight animate-fade-in">
+        Add New Resource
+    </h1>
+
+    <!-- Add Resource Card -->
+    <div class="card bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300">
+        <div class="p-6">
+            <form method="POST" action="{{ url_for('add_resource') }}" class="space-y-6" id="addResourceForm">
+                <div class="form-group">
+                    <label for="title" class="block text-sm font-medium text-gray-700">Title</label>
+                    <input type="text" class="w-full mt-1 p-2 border border-gray-300 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200" id="title" name="title" minlength="5" required aria-describedby="title_help title_error">
+                    <small id="title_help" class="text-xs text-gray-500">Enter a concise title for the resource (minimum 5 characters).</small>
+                    <small id="title_error" class="text-xs text-red-500 hidden">Title must be at least 5 characters long.</small>
+                </div>
+                <div class="form-group">
+                    <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
+                    <textarea class="w-full mt-1 p-2 border border-gray-300 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200" id="description" name="description" rows="4" minlength="10" aria-describedby="description_help description_error"></textarea>
+                    <small id="description_help" class="text-xs text-gray-500">Optional: Provide details about the resource (minimum 10 characters if provided).</small>
+                    <small id="description_error" class="text-xs text-red-500 hidden">Description must be at least 10 characters long if provided.</small>
+                </div>
+                <div class="flex space-x-4">
+                    <button type="submit" class="btn bg-indigo-600 text-white px-4 py-2 rounded-md font-medium hover:bg-indigo-700 transition-colors duration-200" aria-label="Add new resource">Add Resource</button>
+                    <a href="{{ url_for('manage_resources') }}" class="btn bg-gray-500 text-white px-4 py-2 rounded-md font-medium hover:bg-gray-600 transition-colors duration-200" aria-label="Cancel and return to manage resources">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript for Client-Side Validation -->
+<script>
+    const form = document.getElementById('addResourceForm');
+    const titleInput = document.getElementById('title');
+    const descriptionInput = document.getElementById('description');
+    const titleError = document.getElementById('title_error');
+    const descriptionError = document.getElementById('description_error');
+
+    form.addEventListener('submit', function (event) {
+        let isValid = true;
+
+        // Validate title
+        if (titleInput.value.length < 5) {
+            titleInput.setCustomValidity('Title must be at least 5 characters long.');
+            titleError.classList.remove('hidden');
+            isValid = false;
+        } else {
+            titleInput.setCustomValidity('');
+            titleError.classList.add('hidden');
+        }
+
+        // Validate description (optional, but minlength 10 if provided)
+        if (descriptionInput.value && descriptionInput.value.length < 10) {
+            descriptionInput.setCustomValidity('Description must be at least 10 characters long if provided.');
+            descriptionError.classList.remove('hidden');
+            isValid = false;
+        } else {
+            descriptionInput.setCustomValidity('');
+            descriptionError.classList.add('hidden');
+        }
+
+        if (!isValid) {
+            event.preventDefault();
+        }
+    });
+
+    // Real-time validation for immediate feedback
+    titleInput.addEventListener('input', function () {
+        if (this.value.length < 5) {
+            this.setCustomValidity('Title must be at least 5 characters long.');
+            titleError.classList.remove('hidden');
+        } else {
+            this.setCustomValidity('');
+            titleError.classList.add('hidden');
+        }
+    });
+
+    descriptionInput.addEventListener('input', function () {
+        if (this.value && this.value.length < 10) {
+            this.setCustomValidity('Description must be at least 10 characters long if provided.');
+            descriptionError.classList.remove('hidden');
+        } else {
+            this.setCustomValidity('');
+            descriptionError.classList.add('hidden');
+        }
+    });
+</script>
+
+<!-- Custom CSS for Animations -->
+<style>
+    .animate-fade-in {
+        animation: fadeIn 0.5s ease-in;
+    }
+
+    @keyframes fadeIn {
+        0% { opacity: 0; transform: translateY(10px); }
+        100% { opacity: 1; transform: translateY(0); }
+    }
+</style>
+{% endblock %}

@@ -1,6 +1,6 @@
 # models.py
 from flask_sqlalchemy import SQLAlchemy
-
+from datetime import datetime
 db = SQLAlchemy()
 
 class User(db.Model):
@@ -24,6 +24,7 @@ class Task(db.Model):
     description = db.Column(db.Text, nullable=True)
     due_date = db.Column(db.DateTime, nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    user = db.relationship('User', backref=db.backref('tasks', lazy=True))
 
 class Announcement(db.Model):
     __tablename__ = 'announcements'
@@ -32,6 +33,7 @@ class Announcement(db.Model):
     title = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    user = db.relationship('User', backref=db.backref('announcements', lazy=True))
 
 class Resource(db.Model):
     __tablename__ = 'resources'
@@ -40,6 +42,7 @@ class Resource(db.Model):
     title = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    user = db.relationship('User', backref=db.backref('resources', lazy=True))
 
 class Birthday(db.Model):
     __tablename__ = 'birthdays'
@@ -54,10 +57,23 @@ class Birthday(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     user = db.relationship('User', backref=db.backref('birthdays', lazy=True))
 
-class MovieAlert(db.Model):
+class Movie(db.Model):
     __tablename__ = 'movies'
     id = db.Column(db.Integer, primary_key=True)
     movie_name = db.Column(db.String(100), nullable=False)
     release_date = db.Column(db.Date, nullable=False)
     alert_sent = db.Column(db.Boolean, default=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+
+class Request(db.Model):
+    __tablename__ = 'requests'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    request_type = db.Column(db.String(50), nullable=False)
+    title = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    status = db.Column(db.String(50), nullable=False, default='Pending')
+    admin_message = db.Column(db.Text, nullable=True)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    user = db.relationship('User', backref=db.backref('requests', lazy=True))

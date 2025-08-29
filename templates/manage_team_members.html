@@ -1,0 +1,95 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}Manage Team Members{% endblock %}
+
+{% block dashboard_content %}
+<div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Page Header -->
+    <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-8 tracking-tight animate-fade-in">
+        Manage Members for Team: {{ team.name }}
+    </h1>
+
+    <!-- Add Member Card -->
+    <div class="card bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 mb-8">
+        <div class="card-header flex justify-between items-center p-6 border-b border-gray-200">
+            <h3 class="text-lg sm:text-xl font-semibold text-gray-800 flex items-center">
+                <i class="fas fa-user-plus mr-3 text-indigo-600"></i> Add Member
+            </h3>
+        </div>
+        <div class="p-6">
+            <form method="POST" action="{{ url_for('manage_team_members', team_id=team.id) }}" class="space-y-4">
+                <input type="hidden" name="action" value="add">
+                <div class="form-group">
+                    <label for="user_id" class="block text-sm font-medium text-gray-700">Select User</label>
+                    <select class="form-control" id="user_id" name="user_id" required>
+                        <option value="">-- Select a user --</option>
+                        {% for user in all_users %}
+                            {% if user.team_id != team.id %} {# Only show users not already in this team #}
+                                <option value="{{ user.id }}">{{ user.name }} ({{ user.email }})</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Add Member to Team</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Current Members Card -->
+    <div class="card bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 mb-8">
+        <div class="card-header flex justify-between items-center p-6 border-b border-gray-200">
+            <h3 class="text-lg sm:text-xl font-semibold text-gray-800 flex items-center">
+                <i class="fas fa-users mr-3 text-indigo-600"></i> Current Members ({{ team.members|length }})
+            </h3>
+        </div>
+        <div class="p-6">
+            <div class="overflow-x-auto">
+                <table class="table w-full text-sm text-gray-700">
+                    <thead>
+                        <tr class="bg-gray-100">
+                            <th class="p-3 text-left font-semibold">Name</th>
+                            <th class="p-3 text-left font-semibold">Email</th>
+                            <th class="p-3 text-left font-semibold">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for member in team.members %}
+                        <tr class="border-b border-gray-200 hover:bg-gray-50 transition-colors duration-200">
+                            <td class="p-3">{{ member.name }}</td>
+                            <td class="p-3">{{ member.email }}</td>
+                            <td class="p-3">
+                                <form method="POST" action="{{ url_for('manage_team_members', team_id=team.id) }}" class="inline">
+                                    <input type="hidden" name="action" value="remove">
+                                    <input type="hidden" name="user_id" value="{{ member.id }}">
+                                    <button type="submit" class="btn bg-red-500 text-white px-3 py-1 rounded-md text-sm font-medium hover:bg-red-600 transition-colors duration-200" onclick="return confirm('Are you sure you want to remove {{ member.name }} from this team?')">Remove</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="3" class="p-3 text-center text-gray-500 italic">No members in this team yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-8">
+        <a href="{{ url_for('manage_teams') }}" class="btn btn-info">Back to All Teams</a>
+    </div>
+</div>
+
+<!-- Custom CSS for Animations -->
+<style>
+    .animate-fade-in {
+        animation: fadeIn 0.5s ease-in;
+    }
+
+    @keyframes fadeIn {
+        0% { opacity: 0; transform: translateY(10px); }
+        100% { opacity: 1; transform: translateY(0); }
+    }
+</style>
+{% endblock %}
