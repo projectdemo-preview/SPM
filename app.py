@@ -68,7 +68,9 @@ def admin_required(f):
 def index():
     return render_template('index.html')
 
+
 @app.route('/register', methods=['GET', 'POST'])
+@admin_required
 def register():
     if request.method == 'POST':
         userID = request.form['userID']
