@@ -10,9 +10,9 @@
             <div class="hidden md:flex space-x-4">
                 {% if session.get('user_id') %}
                     {% if session.get('is_admin') %}
-                        <a href="{{ url_for('admin_dashboard') }}" class="hover:text-gray-300">Admin ff Dashboard</a>
+                        <a href="{{ url_for('admin_dashboard') }}" class="hover:text-gray-300">Admin  Dashboard</a>
                     {% else %}
-                        <a href="{{ url_for('dashboard') }}" class="hover:text-gray-300">Dffashboard</a>
+                        <a href="{{ url_for('dashboard') }}" class="hover:text-gray-300">Dashboard</a>
                     {% endif %}
                 {% endif %}
             </div>
@@ -67,8 +67,17 @@
                             <li><a href="{{ url_for('tasks') }}" class="block hover:bg-gray-700 px-3 py-2 rounded-md {{ 'sidebar-active-link' if request.endpoint == 'tasks' else '' }}"><i class="fas fa-tasks mr-2"></i> Tasks</a></li>
                             <li><a href="{{ url_for('announcements') }}" class="block hover:bg-gray-700 px-3 py-2 rounded-md {{ 'sidebar-active-link' if request.endpoint == 'announcements' else '' }}"><i class="fas fa-bullhorn mr-2"></i> Announcements</a></li>
                             <li><a href="{{ url_for('resources') }}" class="block hover:bg-gray-700 px-3 py-2 rounded-md {{ 'sidebar-active-link' if request.endpoint == 'resources' else '' }}"><i class="fas fa-book mr-2"></i> Resources</a></li>
-                            <li><a href="{{ url_for('birthdays') }}" class="block hover:bg-gray-700 px-3 py-2 rounded-md {{ 'sidebar-active-link' if request.endpoint == 'birthdays' else '' }}"><i class="fas fa-birthday-cake mr-2"></i> Birthdays</a></li>
-                            <li><a href="{{ url_for('movies') }}" class="block hover:bg-gray-700 px-3 py-2 rounded-md {{ 'sidebar-active-link' if request.endpoint == 'movies' else '' }}"><i class="fas fa-film mr-2"></i> Movies</a></li>
+<li>
+  <a class="block px-3 py-2 rounded-md opacity-50 cursor-not-allowed pointer-events-none">
+    <i class="fas fa-users mr-2"></i>Team Workspace
+  </a>
+</li>
+<li>
+  <a class="block px-3 py-2 rounded-md opacity-50 cursor-not-allowed pointer-events-none">
+    <i class="fas fa-tasks mr-2"></i>Project Planning
+  </a>
+</li>
+
                             <li><a href="{{ url_for('my_requests') }}" class="block hover:bg-gray-700 px-3 py-2 rounded-md {{ 'sidebar-active-link' if request.endpoint == 'my_requests' else '' }}"><i class="fas fa-clipboard-list mr-2"></i> My Requests</a></li>
                         {% endif %}
                     {% endif %}
