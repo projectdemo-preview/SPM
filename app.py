@@ -289,7 +289,7 @@ def edit_announcement(announcement_id):
         db.session.commit()
         flash('Announcement updated successfully!', 'success')
         return redirect(url_for('admin_dashboard'))
-    return render_template('edit_announcement.html', announcement=announcement)
+    return render_template('edit_announcement.html', announcement=announcement, csrf_token_value=generate_csrf())
 
 @app.route('/admin/delete_announcement/<int:announcement_id>')
 @login_required
@@ -337,7 +337,7 @@ def edit_resource(resource_id):
         db.session.commit()
         flash('Resource updated successfully!', 'success')
         return redirect(url_for('admin_dashboard'))
-    return render_template('edit_resource.html', resource=resource)
+    return render_template('edit_resource.html', resource=resource, csrf_token_value=generate_csrf())
 
 @app.route('/admin/delete_resource/<int:resource_id>')
 @login_required
@@ -461,7 +461,7 @@ def edit_birthday(birthday_id):
         db.session.commit()
         flash('Birthday updated successfully!', 'success')
         return redirect(url_for('birthdays'))
-    return render_template('edit_birthday.html', birthday=birthday)
+    return render_template('edit_birthday.html', birthday=birthday, csrf_token_value=generate_csrf())
 
 @app.route('/delete_birthday/<int:birthday_id>')
 @login_required
@@ -514,7 +514,7 @@ def edit_movie(movie_id):
         db.session.commit()
         flash('Movie updated successfully!', 'success')
         return redirect(url_for('movies'))
-    return render_template('edit_movie.html', movie=movie)
+    return render_template('edit_movie.html', movie=movie, csrf_token_value=generate_csrf())
 
 @app.route('/delete_movie/<int:movie_id>')
 @login_required
