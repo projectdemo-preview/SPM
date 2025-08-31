@@ -1,30 +1,31 @@
 {% extends 'base.html' %}
 
-{% block title %}Login{% endblock %}
+{% block title %}Login to CodeSoftix{% endblock %}
 
 {% block content %}
-<div class="flex items-center justify-center min-h-screen bg-gray-100">
-    <div class="card bg-white max-w-md w-full rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 p-6">
-        <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 text-center mb-6 animate-fade-in">
-            Login
+<div class="flex items-center justify-center min-h-screen bg-gray-200">
+    <div class="card bg-white max-w-md w-full rounded-lg shadow-md border border-gray-400 p-6">
+        <h1 class="text-2xl sm:text-3xl font-serif font-bold text-navy-800 text-center mb-6 tracking-wide">
+            Login to <span class="text-navy-900 uppercase">CodeSoftix</span>
         </h1>
+        <p class="text-base text-gray-600 text-center mb-6 font-sans">Access your trusted project management solution.</p>
         <form method="POST" action="{{ url_for('login') }}" class="space-y-6" id="loginForm">
             <input type="hidden" name="csrf_token" value="{{ csrf_token_value }}"/>
             <div class="form-group">
-                <label for="userID" class="block text-sm font-medium text-gray-700">User ID</label>
-                <input type="text" class="w-full mt-1 p-2 border border-gray-300 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200" id="userID" name="userID" required aria-describedby="userID_help userID_error">
+                <label for="userID" class="block text-sm font-medium text-navy-700">User ID</label>
+                <input type="text" class="w-full mt-1 p-2 border border-gray-400 rounded-md text-sm focus:ring-navy-500 focus:border-navy-500 transition-colors duration-200 bg-gray-50" id="userID" name="userID" required aria-describedby="userID_help userID_error">
                 <small id="userID_help" class="text-xs text-gray-500">Enter your unique user ID.</small>
                 <small id="userID_error" class="text-xs text-red-500 hidden">User ID is required.</small>
             </div>
             <div class="form-group">
-                <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-                <input type="password" class="w-full mt-1 p-2 border border-gray-300 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200" id="password" name="password" required aria-describedby="password_help password_error">
+                <label for="password" class="block text-sm font-medium text-navy-700">Password</label>
+                <input type="password" class="w-full mt-1 p-2 border border-gray-400 rounded-md text-sm focus:ring-navy-500 focus:border-navy-500 transition-colors duration-200 bg-gray-50" id="password" name="password" required aria-describedby="password_help password_error">
                 <small id="password_help" class="text-xs text-gray-500">Enter your password.</small>
                 <small id="password_error" class="text-xs text-red-500 hidden">Password is required.</small>
             </div>
-            <button type="submit" class="btn bg-indigo-600 text-white w-full px-4 py-2 rounded-md font-medium hover:bg-indigo-700 transition-colors duration-200" aria-label="Log in to your account">Login</button>
-            <div class="text-center mt-4 text-sm text-gray-600">
-                <p>Don't have an account? <a href="{{ url_for('register') }}" class="text-indigo-600 hover:underline" aria-label="Sign up for a new account">Sign up</a></p>
+            <button type="submit" class="btn bg-navy-700 text-white w-full px-4 py-2 rounded-md font-medium border border-navy-900 hover:bg-navy-800 transition-colors duration-200 shadow-sm" aria-label="Log in to your CodeSoftix account">Login</button>
+            <div class="text-center mt-4 text-sm text-gray-600 font-sans">
+                <p>Don't have an account? <a href="{{ url_for('register') }}" class="text-navy-700 hover:underline" aria-label="Sign up for a new CodeSoftix account">Sign up</a></p>
             </div>
         </form>
     </div>
@@ -88,15 +89,78 @@
     });
 </script>
 
-<!-- Custom CSS for Animations -->
+<!-- Custom CSS for Classic UI -->
 <style>
-    .animate-fade-in {
-        animation: fadeIn 0.5s ease-in;
-    }
+.card {
+    background: linear-gradient(145deg, #ffffff, #f5f5f5);
+    box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.15), -4px -4px 8px rgba(255, 255, 255, 0.9);
+}
 
-    @keyframes fadeIn {
-        0% { opacity: 0; transform: translateY(10px); }
-        100% { opacity: 1; transform: translateY(0); }
+.btn {
+    transition: all 0.2s ease-in-out;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.text-navy-700 {
+    color: #2b4a7a;
+}
+
+.text-navy-800 {
+    color: #1a3555;
+}
+
+.text-navy-900 {
+    color: #12273f;
+}
+
+.bg-navy-700 {
+    background-color: #2b4a7a;
+}
+
+.bg-navy-800 {
+    background-color: #1a3555;
+}
+
+.bg-navy-500 {
+    background-color: #4b6a9a;
+}
+
+.border-navy-500 {
+    border-color: #4b6a9a;
+}
+
+.border-navy-900 {
+    border-color: #12273f;
+}
+
+@media (max-width: 640px) {
+    .card {
+        padding: 1.5rem;
+        max-width: 90%;
     }
+    h1 {
+        font-size: 1.75rem;
+    }
+    p {
+        font-size: 0.875rem;
+    }
+    .btn {
+        font-size: 1rem;
+        padding: 0.5rem;
+    }
+}
+
+a:focus, input:focus, button:focus {
+    outline: 2px solid #2b4a7a;
+    outline-offset: 2px;
+}
+
+h1 {
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
 </style>
 {% endblock %}
