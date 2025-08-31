@@ -8,6 +8,7 @@
 
     <div class="card">
         <form action="{{ url_for('add_movie') }}" method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token_value }}"/>
             <div class="form-group mb-4">
                 <label for="title">Movie Title</label>
                 <input type="text" class="form-control" id="title" name="title" minlength="2" required>

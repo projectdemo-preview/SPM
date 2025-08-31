@@ -71,6 +71,7 @@
                 </div>
                 <div class="modal-body p-6">
                     <form action="{{ url_for('admin_add') }}" method="POST" class="space-y-4">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token_value }}"/>
                         <input type="hidden" name="user_id" id="modal_user_id">
                         <div class="form-group">
                             <label for="item_type" class="block text-sm font-medium text-gray-700">Item Type</label>

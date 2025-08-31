@@ -2,6 +2,7 @@
 from flask import Flask, render_template, url_for, flash, redirect, request, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+
 from datetime import datetime, timedelta
 from apscheduler.schedulers.background import BackgroundScheduler
 import atexit
@@ -16,6 +17,7 @@ import os
 from models import db, User, Task, Announcement, Resource, Birthday, Movie, Request
 from datetime import datetime
 from config import Config
+from flask_wtf.csrf import CSRFProtect, generate_csrf
 
 # ----------------------------_
 # Configuration
@@ -23,9 +25,9 @@ from config import Config
 app = Flask(__name__)
 app.config.from_object(Config)
 
-# Initialize DB
+# Initialize DB and CSRF Protection
 db.init_app(app)
-
+csrf = CSRFProtect(app)
 
 with app.app_context():
     db.create_all()
@@ -34,9 +36,9 @@ with app.app_context():
             userID='admin',
             name='Admin User',
             email='admin@example.com',
-            password='admin',
             is_admin=True
         )
+        admin_user.set_password('admin')
         db.session.add(admin_user)
         db.session.commit()
 
@@ -89,11 +91,11 @@ def register():
             userID=userID,
             name=name,
             email=email,
-            password=password,  # Consider hashing
             domain=domain,
             position=position,
             duration=duration
         )
+        new_user.set_password(password)
         try:
             db.session.add(new_user)
             db.session.commit()
@@ -103,7 +105,7 @@ def register():
             db.session.rollback()
             flash(f"Error: {str(e)}", "danger")
             return redirect(url_for('register'))
-    return render_template('register.html')
+    return render_template('register.html', csrf_token_value=generate_csrf())
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -112,7 +114,7 @@ def login():
         password = request.form['password']
 
         user = User.query.filter_by(userID=userID).first()
-        if user and user.password == password:
+        if user and user.check_password(password):
             session['user_id'] = user.id
             session['userID'] = user.userID
             session['is_admin'] = user.is_admin
@@ -125,7 +127,7 @@ def login():
         else:
             flash('Invalid userID or password!', 'danger')
 
-    return render_template('login.html')
+    return render_template('login.html', csrf_token_value=generate_csrf())
 
 @app.route('/logout')
 def logout():
@@ -164,14 +166,14 @@ def admin_dashboard():
     tasks = Task.query.limit(5).all()
     announcements = Announcement.query.limit(5).all()
     resources = Resource.query.limit(5).all()
-    return render_template('admin_dashboard.html', users=users, tasks=tasks, announcements=announcements, resources=resources)
+    return render_template('admin_dashboard.html', users=users, tasks=tasks, announcements=announcements, resources=resources, csrf_token_value=generate_csrf())
 
 @app.route('/admin/tasks')
 @login_required
 @admin_required
 def manage_tasks():
     tasks = Task.query.all()
-    return render_template('manage_tasks.html', tasks=tasks)
+    return render_template('manage_tasks.html', tasks=tasks, csrf_token_value=generate_csrf())
 
 # ----------------------------_
 # Task Management
@@ -392,7 +394,7 @@ def edit_user(user_id):
         db.session.commit()
         flash('User updated successfully!', 'success')
         return redirect(url_for('manage_users'))
-    return render_template('edit_user.html', user=user)
+    return render_template('edit_user.html', user=user, csrf_token_value=generate_csrf())
 
 @app.route('/admin/delete_user/<int:user_id>')
 @login_required
@@ -671,7 +673,7 @@ def add_request():
 @admin_required
 def manage_requests():
     requests = Request.query.filter_by(status='Pending').all()
-    return render_template('admin_requests.html', requests=requests)
+    return render_template('admin_requests.html', requests=requests, csrf_token_value=generate_csrf())
 
 @app.route('/admin/approve_request/<int:request_id>', methods=['POST'])
 @login_required
@@ -707,6 +709,16 @@ def reject_request(request_id):
     db.session.commit()
     flash('Request rejected.', 'success')
     return redirect(url_for('manage_requests'))
+
+@app.after_request
+def add_header(response):
+    """
+    Add headers to prevent caching.
+    """
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
 
 
 # -----------------------------

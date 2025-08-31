@@ -1,13 +1,21 @@
 # config.py
 import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 class Config:
-    SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:python@localhost:5432/PMS'
-    SECRET_KEY = os.urandom(24)
+    # Secret key for session management and CSRF protection
+    SECRET_KEY = os.environ.get('SECRET_KEY') or 'you-will-never-guess'
+
+    # Database configuration
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    # Your email configuration
-    EMAIL_USER = 'onlyresources0@gmail.com'
-    EMAIL_PASS = 'blfl sfjo whtb olkp'  # Or use app-specific password for Gmail
+
+    # Email configuration
+    EMAIL_USER = os.environ.get('EMAIL_USER')
+    EMAIL_PASS = os.environ.get('EMAIL_PASS')
     EMAIL_HOST = 'smtp.gmail.com'
-    EMAIL_PORT = 465  # Use 465 for SSL if needed
+    EMAIL_PORT = 465
     EMAIL_USE_TLS = True

@@ -8,7 +8,7 @@ if defined _OLD_CODEPAGE (
     "%SystemRoot%\System32\chcp.com" 65001 > nul
 )
 
-set VIRTUAL_ENV=C:\Users\YASH\OneDrive\Desktop\Python\Flask\All_in_one _flask - Copy\venv
+set VIRTUAL_ENV=C:\Users\YASH\OneDrive\Desktop\Python\Flask\PSM_Copy\All-in-One-Planner-main\venv
 
 if not defined PROMPT set PROMPT=$P$G
 

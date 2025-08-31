@@ -6,6 +6,7 @@
 <div class="container mt-5">
     <h2>Add Content for {{ user.name }}</h2>
     <form method="POST" action="{{ url_for('add_content', user_id=user.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token_value }}"/>
         <div class="form-group">
             <label for="content_type">Content Type</label>
             <select class="form-control" id="content_type" name="content_type" onchange="toggleDueDate()">

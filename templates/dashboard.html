@@ -148,6 +148,7 @@
             </div>
             <div class="p-6 space-y-4">
                 <form action="{{ url_for('add_request') }}" method="POST" class="space-y-4">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token_value }}"/>
                     <div class="form-group">
                         <label for="request_type" class="block text-sm font-medium text-gray-700">Request Type</label>
                         <select class="form-control w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200" id="request_type" name="request_type" required aria-describedby="request_type_help">

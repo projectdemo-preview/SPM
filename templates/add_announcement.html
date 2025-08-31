@@ -13,6 +13,7 @@
     <div class="card bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300">
         <div class="p-6">
             <form method="POST" action="{{ url_for('add_announcement') }}" class="space-y-6" id="addAnnouncementForm">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token_value }}"/>
                 <div class="form-group">
                     <label for="title" class="block text-sm font-medium text-gray-700">Title</label>
                     <input type="text" class="w-full mt-1 p-2 border border-gray-300 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200" id="title" name="title" minlength="5" required aria-describedby="title_help title_error">

@@ -50,6 +50,7 @@
                                     </button>
                                 </form>
                                 <form action="{{ url_for('reject_request', request_id=req.id) }}" method="POST" class="flex flex-col space-y-2 w-full sm:w-auto">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token_value }}"/>
                                     <textarea name="admin_message" placeholder="Optional message" rows="2" class="w-full p-2 border border-gray-300 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200" aria-describedby="reject_message_help_{{ req.id }}"></textarea>
                                     <small id="reject_message_help_{{ req.id }}" class="text-xs text-gray-500">Optional message for rejection</small>
                                     <button type="submit" class="btn bg-red-500 text-white px-3 py-1 rounded-md text-sm font-medium hover:bg-red-600 transition-colors duration-200" aria-label="Reject request {{ req.title }}" onclick="return confirm('Are you sure you want to reject this request?')">
