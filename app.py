@@ -211,7 +211,7 @@ def add_task():
 @login_required
 def edit_task(task_id):
     task = Task.query.get_or_404(task_id)
-    if task.user_id != session['user_id']:
+    if task.user_id != session['user_id'] and not session.get('is_admin'):
         flash('You do not have permission to edit this task.', 'danger')
         return redirect(url_for('tasks'))
     if request.method == 'POST':
@@ -221,11 +221,11 @@ def edit_task(task_id):
         task.due_date = datetime.strptime(due_date_str, '%Y-%m-%d') if due_date_str else None
         db.session.commit()
         flash('Task updated successfully!', 'success')
-        if current_user.is_admin:
+        if session.get('is_admin'):
             return redirect(url_for('manage_tasks'))
         else:
             return redirect(url_for('tasks'))
-    return render_template('edit_task.html', task=task)
+    return render_template('edit_task.html', task=task, csrf_token_value=generate_csrf())
 
 @app.route('/delete_task/<int:task_id>', methods=['POST'])
 @login_required
