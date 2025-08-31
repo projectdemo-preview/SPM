@@ -3,6 +3,10 @@ from flask import Flask, render_template, url_for, flash, redirect, request, ses
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 
+
+
+
+
 from datetime import datetime, timedelta
 from apscheduler.schedulers.background import BackgroundScheduler
 import atexit
@@ -156,7 +160,7 @@ def dashboard():
     requests = Request.query.filter_by(user_id=user_id).limit(2).all()
     return render_template('dashboard.html',
                         tasks=tasks, announcements=announcements, resources=resources,
-                        birthdays=birthdays, movies=movies, requests=requests)
+                        birthdays=birthdays, movies=movies, requests=requests, csrf_token_value=generate_csrf())
 
 @app.route('/admin/dashboard')
 @login_required
