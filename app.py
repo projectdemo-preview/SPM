@@ -22,6 +22,7 @@ from models import db, User, Task, Announcement, Resource, Birthday, Movie, Requ
 from datetime import datetime
 from config import Config
 from flask_wtf.csrf import CSRFProtect, generate_csrf
+import uuid
 
 # ----------------------------_
 # Configuration
@@ -45,6 +46,55 @@ with app.app_context():
         admin_user.set_password('admin')
         db.session.add(admin_user)
         db.session.commit()
+
+    # Generate public_id for existing tasks
+    tasks = Task.query.all()
+    for task in tasks:
+        if not task.public_id:
+            task.public_id = str(uuid.uuid4())
+    db.session.commit()
+
+    # Generate public_id for existing users
+    users = User.query.all()
+    for user in users:
+        if not user.public_id:
+            user.public_id = str(uuid.uuid4())
+    db.session.commit()
+
+    # Generate public_id for existing announcements
+    announcements = Announcement.query.all()
+    for announcement in announcements:
+        if not announcement.public_id:
+            announcement.public_id = str(uuid.uuid4())
+    db.session.commit()
+
+    # Generate public_id for existing resources
+    resources = Resource.query.all()
+    for resource in resources:
+        if not resource.public_id:
+            resource.public_id = str(uuid.uuid4())
+    db.session.commit()
+
+    # Generate public_id for existing birthdays
+    birthdays = Birthday.query.all()
+    for birthday in birthdays:
+        if not birthday.public_id:
+            birthday.public_id = str(uuid.uuid4())
+    db.session.commit()
+
+    # Generate public_id for existing movies
+    movies = Movie.query.all()
+    for movie in movies:
+        if not movie.public_id:
+            movie.public_id = str(uuid.uuid4())
+    db.session.commit()
+
+    # Generate public_id for existing requests
+    requests = Request.query.all()
+    for req in requests:
+        if not req.public_id:
+            req.public_id = str(uuid.uuid4())
+    db.session.commit()
 
 # ----------------------------_
 # Role-based decorators
@@ -157,7 +207,17 @@ def dashboard():
     resources = Resource.query.filter_by(user_id=user_id).limit(2).all()
     birthdays = Birthday.query.filter_by(user_id=user_id).all()
     movies = Movie.query.filter_by(user_id=user_id).all()
-    requests = Request.query.filter_by(user_id=user_id).limit(8).all()
+    requests = Request.query.filter_by(user_id=user_id).limit(8
+
+
+
+
+
+
+
+
+
+                                                              ).all()
     return render_template('dashboard.html',
                         tasks=tasks, announcements=announcements, resources=resources,
                         birthdays=birthdays, movies=movies, requests=requests, csrf_token_value=generate_csrf())
@@ -211,10 +271,10 @@ def add_task():
 
     return render_template('add_task.html', csrf_token_value=generate_csrf())
 
-@app.route('/edit_task/<int:task_id>', methods=['GET', 'POST'])
+@app.route('/edit_task/<string:public_id>', methods=['GET', 'POST'])
 @login_required
-def edit_task(task_id):
-    task = Task.query.get_or_404(task_id)
+def edit_task(public_id):
+    task = Task.query.filter_by(public_id=public_id).first_or_404()
     if task.user_id != session['user_id'] and not session.get('is_admin'):
         flash('You do not have permission to edit this task.', 'danger')
         return redirect(url_for('tasks'))
@@ -231,10 +291,10 @@ def edit_task(task_id):
             return redirect(url_for('tasks'))
     return render_template('edit_task.html', task=task, csrf_token_value=generate_csrf())
 
-@app.route('/delete_task/<int:task_id>', methods=['POST'])
+@app.route('/delete_task/<string:public_id>', methods=['POST'])
 @login_required
-def delete_task(task_id):
-    task = Task.query.get_or_404(task_id)
+def delete_task(public_id):
+    task = Task.query.filter_by(public_id=public_id).first_or_404()
 
     # Optional: prevent non-owners from deleting
     if not session.get('is_admin') and task.user_id != session['user_id']:
@@ -282,11 +342,11 @@ def add_announcement():
         return redirect(url_for('admin_dashboard'))
     return render_template('add_announcement.html', csrf_token_value=generate_csrf())
 
-@app.route('/admin/edit_announcement/<int:announcement_id>', methods=['GET', 'POST'])
+@app.route('/admin/edit_announcement/<string:public_id>', methods=['GET', 'POST'])
 @login_required
 @admin_required
-def edit_announcement(announcement_id):
-    announcement = Announcement.query.get_or_404(announcement_id)
+def edit_announcement(public_id):
+    announcement = Announcement.query.filter_by(public_id=public_id).first_or_404()
     if request.method == 'POST':
         announcement.title = request.form['title']
         announcement.description = request.form['description']
@@ -295,11 +355,11 @@ def edit_announcement(announcement_id):
         return redirect(url_for('admin_dashboard'))
     return render_template('edit_announcement.html', announcement=announcement, csrf_token_value=generate_csrf())
 
-@app.route('/admin/delete_announcement/<int:announcement_id>')
+@app.route('/admin/delete_announcement/<string:public_id>')
 @login_required
 @admin_required
-def delete_announcement(announcement_id):
-    announcement = Announcement.query.get_or_404(announcement_id)
+def delete_announcement(public_id):
+    announcement = Announcement.query.filter_by(public_id=public_id).first_or_404()
     db.session.delete(announcement)
     db.session.commit()
     flash('Announcement deleted successfully!', 'success')
@@ -330,11 +390,11 @@ def add_resource():
         return redirect(url_for('admin_dashboard'))
     return render_template('add_resource.html', csrf_token_value=generate_csrf())
 
-@app.route('/admin/edit_resource/<int:resource_id>', methods=['GET', 'POST'])
+@app.route('/admin/edit_resource/<string:public_id>', methods=['GET', 'POST'])
 @login_required
 @admin_required
-def edit_resource(resource_id):
-    resource = Resource.query.get_or_404(resource_id)
+def edit_resource(public_id):
+    resource = Resource.query.filter_by(public_id=public_id).first_or_404()
     if request.method == 'POST':
         resource.title = request.form['title']
         resource.description = request.form['description']
@@ -343,11 +403,11 @@ def edit_resource(resource_id):
         return redirect(url_for('admin_dashboard'))
     return render_template('edit_resource.html', resource=resource, csrf_token_value=generate_csrf())
 
-@app.route('/admin/delete_resource/<int:resource_id>')
+@app.route('/admin/delete_resource/<string:public_id>')
 @login_required
 @admin_required
-def delete_resource(resource_id):
-    resource = Resource.query.get_or_404(resource_id)
+def delete_resource(public_id):
+    resource = Resource.query.filter_by(public_id=public_id).first_or_404()
     db.session.delete(resource)
     db.session.commit()
     flash('Resource deleted successfully!', 'success')
@@ -392,11 +452,11 @@ def manage_users():
 
     return render_template('manage_users.html', users=users, csrf_token_value=generate_csrf())
 
-@app.route('/admin/edit_user/<int:user_id>', methods=['GET', 'POST'])
+@app.route('/admin/edit_user/<string:public_id>', methods=['GET', 'POST'])
 @login_required
 @admin_required
-def edit_user(user_id):
-    user = User.query.get_or_404(user_id)
+def edit_user(public_id):
+    user = User.query.filter_by(public_id=public_id).first_or_404()
     if request.method == 'POST':
         user.name = request.form['name']
         user.email = request.form['email']
@@ -409,11 +469,11 @@ def edit_user(user_id):
         return redirect(url_for('manage_users'))
     return render_template('edit_user.html', user=user, csrf_token_value=generate_csrf())
 
-@app.route('/admin/delete_user/<int:user_id>')
+@app.route('/admin/delete_user/<string:public_id>')
 @login_required
 @admin_required
-def delete_user(user_id):
-    user = User.query.get_or_404(user_id)
+def delete_user(public_id):
+    user = User.query.filter_by(public_id=public_id).first_or_404()
     db.session.delete(user)
     db.session.commit()
     flash('User deleted successfully!', 'success')
@@ -457,10 +517,10 @@ def add_birthday():
         return redirect(url_for('birthdays'))
     return render_template('add_birthday.html', csrf_token_value=generate_csrf())
 
-@app.route('/edit_birthday/<int:birthday_id>', methods=['GET', 'POST'])
+@app.route('/edit_birthday/<string:public_id>', methods=['GET', 'POST'])
 @login_required
-def edit_birthday(birthday_id):
-    birthday = Birthday.query.get_or_404(birthday_id)
+def edit_birthday(public_id):
+    birthday = Birthday.query.filter_by(public_id=public_id).first_or_404()
     if birthday.user_id != session['user_id']:
         flash('You do not have permission to edit this birthday.', 'danger')
         return redirect(url_for('birthdays'))
@@ -476,10 +536,10 @@ def edit_birthday(birthday_id):
         return redirect(url_for('birthdays'))
     return render_template('edit_birthday.html', birthday=birthday, csrf_token_value=generate_csrf())
 
-@app.route('/delete_birthday/<int:birthday_id>')
+@app.route('/delete_birthday/<string:public_id>')
 @login_required
-def delete_birthday(birthday_id):
-    birthday = Birthday.query.get_or_404(birthday_id)
+def delete_birthday(public_id):
+    birthday = Birthday.query.filter_by(public_id=public_id).first_or_404()
     if birthday.user_id != session['user_id']:
         flash('You do not have permission to delete this birthday.', 'danger')
         return redirect(url_for('birthdays'))
@@ -513,10 +573,10 @@ def add_movie():
         return redirect(url_for('movies'))
     return render_template('add_movie.html', csrf_token_value=generate_csrf())
 
-@app.route('/edit_movie/<int:movie_id>', methods=['GET', 'POST'])
+@app.route('/edit_movie/<string:public_id>', methods=['GET', 'POST'])
 @login_required
-def edit_movie(movie_id):
-    movie = Movie.query.get_or_404(movie_id)
+def edit_movie(public_id):
+    movie = Movie.query.filter_by(public_id=public_id).first_or_404()
     if movie.user_id != session['user_id']:
         flash('You do not have permission to edit this movie.', 'danger')
         return redirect(url_for('movies'))
@@ -529,10 +589,10 @@ def edit_movie(movie_id):
         return redirect(url_for('movies'))
     return render_template('edit_movie.html', movie=movie, csrf_token_value=generate_csrf())
 
-@app.route('/delete_movie/<int:movie_id>')
+@app.route('/delete_movie/<string:public_id>')
 @login_required
-def delete_movie(movie_id):
-    movie = Movie.query.get_or_404(movie_id)
+def delete_movie(public_id):
+    movie = Movie.query.filter_by(public_id=public_id).first_or_404()
     if movie.user_id != session['user_id']:
         flash('You do not have permission to delete this movie.', 'danger')
         return redirect(url_for('movies'))
@@ -548,24 +608,27 @@ def admin_add():
     item_type = request.form.get('item_type')
     title = request.form.get('title')
     description = request.form.get('description')
-    user_id = request.form.get('user_id')
+    user_public_id = request.form.get('user_id') # Get the public_id string
 
-    if not all([item_type, title, user_id]):
+    user = User.query.filter_by(public_id=user_public_id).first_or_404() # Fetch the user object
+    user_id = user.id # Get the integer user_id
+
+    if not all([item_type, title, user_public_id]): # Check user_public_id instead of user_id
         flash('Missing required fields!', 'danger')
         return redirect(url_for('admin_dashboard'))
 
     if item_type == 'task':
         due_date_str = request.form.get('due_date')
         due_date = datetime.strptime(due_date_str, '%Y-%m-%d') if due_date_str else None
-        new_item = Task(title=title, description=description, due_date=due_date, user_id=user_id)
+        new_item = Task(title=title, description=description, due_date=due_date, user_id=user_id) # Use integer user_id
     elif item_type == 'announcement':
-        new_item = Announcement(title=title, description=description, user_id=user_id)
+        new_item = Announcement(title=title, description=description, user_id=user_id) # Use integer user_id
     elif item_type == 'resource':
-        new_item = Resource(title=title, description=description, user_id=user_id)
+        new_item = Resource(title=title, description=description, user_id=user_id) # Use integer user_id
     else:
         flash('Invalid item type!', 'danger')
         return redirect(url_for('admin_dashboard'))
-    
+
     db.session.add(new_item)
     db.session.commit()
     flash(f'{item_type.capitalize()} added successfully!', 'success')
@@ -688,11 +751,11 @@ def manage_requests():
     requests = Request.query.filter_by(status='Pending').all()
     return render_template('admin_requests.html', requests=requests, csrf_token_value=generate_csrf())
 
-@app.route('/admin/approve_request/<int:request_id>', methods=['POST'])
+@app.route('/admin/approve_request/<string:public_id>', methods=['POST'])
 @login_required
 @admin_required
-def approve_request(request_id):
-    req = Request.query.get_or_404(request_id)
+def approve_request(public_id):
+    req = Request.query.filter_by(public_id=public_id).first_or_404()
     admin_message = request.form.get('admin_message')
     if req.request_type == 'Task':
         new_item = Task(title=req.title, description=req.description, user_id=req.user_id)
@@ -711,11 +774,11 @@ def approve_request(request_id):
     flash('Request approved and item added.', 'success')
     return redirect(url_for('manage_requests'))
 
-@app.route('/admin/reject_request/<int:request_id>', methods=['POST'])
+@app.route('/admin/reject_request/<string:public_id>', methods=['POST'])
 @login_required
 @admin_required
-def reject_request(request_id):
-    req = Request.query.get_or_404(request_id)
+def reject_request(public_id):
+    req = Request.query.filter_by(public_id=public_id).first_or_404()
     admin_message = request.form.get('admin_message')
     req.status = 'Rejected'
     req.admin_message = admin_message
@@ -741,11 +804,11 @@ def add_header(response):
 
 
 
-@app.route('/admin/add_item/<int:user_id>', methods=['GET', 'POST'])
+@app.route('/admin/add_item/<string:public_id>', methods=['GET', 'POST'])
 @login_required
 @admin_required
-def admin_add_item(user_id):
-    user = User.query.get_or_404(user_id)
+def admin_add_item(public_id):
+    user = User.query.filter_by(public_id=public_id).first_or_404()
     if request.method == 'POST':
         item_type = request.form.get('item_type')
         title = request.form.get('title')
