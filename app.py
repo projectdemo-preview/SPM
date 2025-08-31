@@ -1,11 +1,7 @@
 # app.py
-from flask import Flask, render_template, url_for, flash, redirect, request, session
+from flask import Flask, render_template, url_for, flash, redirect, request, session, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
-
-
-
-
 
 from datetime import datetime, timedelta
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -275,20 +271,34 @@ def add_task():
 @login_required
 def edit_task(public_id):
     task = Task.query.filter_by(public_id=public_id).first_or_404()
-    if task.user_id != session['user_id'] and not session.get('is_admin'):
-        flash('You do not have permission to edit this task.', 'danger')
-        return redirect(url_for('tasks'))
+    
+    # Debugging: Print request method and public_id
+    print(f"Request method: {request.method}, Public ID: {public_id}")
+
     if request.method == 'POST':
-        task.title = request.form['title']
-        task.description = request.form['description']
-        due_date_str = request.form['due_date']
-        task.due_date = datetime.strptime(due_date_str, '%Y-%m-%d') if due_date_str else None
-        db.session.commit()
-        flash('Task updated successfully!', 'success')
-        if session.get('is_admin'):
-            return redirect(url_for('manage_tasks'))
-        else:
-            return redirect(url_for('tasks'))
+        try:
+            task.title = request.form['title']
+            task.description = request.form['description']
+            due_date_str = request.form['due_date']
+            task.due_date = datetime.strptime(due_date_str, '%Y-%m-%d') if due_date_str else None
+            db.session.commit()
+            
+            # Always return JSON for POST requests to simplify debugging AJAX
+            return jsonify({
+                'success': True,
+                'message': 'Task updated successfully!',
+                'task': {
+                    'public_id': task.public_id,
+                    'title': task.title,
+                    'description': task.description,
+                    'due_date': task.due_date.strftime('%Y-%m-%d') if task.due_date else 'N/A'
+                }
+            })
+        except Exception as e:
+            print(f"Error during task update: {e}") # Log the error
+            return jsonify({'success': False, 'error': str(e), 'message': 'An internal server error occurred.'}), 500
+    
+    # For GET requests, render the template (if accessed directly)
     return render_template('edit_task.html', task=task, csrf_token_value=generate_csrf())
 
 @app.route('/delete_task/<string:public_id>', methods=['POST'])
