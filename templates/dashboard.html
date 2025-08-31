@@ -87,53 +87,6 @@
         </div>
     </div>
 
-    <!-- Middle Grid: Birthdays, Movie Alerts 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8"> -->
-        <!-- Birthdays Card 
-        <div class="card bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300">
-            <div class="card-header flex justify-between items-center p-6 border-b border-gray-200">
-                <h3 class="text-lg sm:text-xl font-semibold text-gray-800 flex items-center">
-                    <i class="fas fa-birthday-cake mr-3 text-indigo-600"></i> My Birthdays
-                </h3>
-                <a href="{{ url_for('birthdays') }}" class="btn bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 transition-colors duration-200" aria-label="Manage birthdays">
-                    Manage
-                </a>
-            </div>
-            <div class="p-6 space-y-4">
-                {% for birthday in birthdays %}
-                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-100 hover:bg-gray-100 transition-colors duration-200">
-                        <h4 class="text-base font-medium text-gray-800">{{ birthday.name }}</h4>
-                        <p class="text-sm text-gray-600 mt-1">Date: {{ birthday.date_of_birth.strftime('%B %d') }}</p>
-                    </div>
-                {% else %}
-                    <p class="text-sm text-gray-500 italic text-center">No birthday reminders set.</p>
-                {% endfor %}
-            </div>
-        </div>-->
-
-        <!-- Movie Alerts Card 
-        <div class="card bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300">
-            <div class="card-header flex justify-between items-center p-6 border-b border-gray-200">
-                <h3 class="text-lg sm:text-xl font-semibold text-gray-800 flex items-center">
-                    <i class="fas fa-film mr-3 text-indigo-600"></i> My Movie Alerts
-                </h3>
-                <a href="{{ url_for('movies') }}" class="btn bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 transition-colors duration-200" aria-label="Manage movie alerts">
-                    Manage
-                </a>
-            </div>
-            <div class="p-6 space-y-4">
-                {% for movie in movies %}
-                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-100 hover:bg-gray-100 transition-colors duration-200">
-                        <h4 class="text-base font-medium text-gray-800">{{ movie.movie_name }}</h4>
-                        <p class="text-sm text-gray-600 mt-1">Release Date: {{ movie.release_date.strftime('%Y-%m-%d') }}</p>
-                    </div>
-                {% else %}
-                    <p class="text-sm text-gray-500 italic text-center">No movie alerts set.</p>
-                {% endfor %}
-            </div>
-        </div>
-    </div>-->
-
     <!-- Bottom Grid: Submit Request, My Requests -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <!-- Submit Request Card -->
@@ -142,9 +95,6 @@
                 <h3 class="text-lg sm:text-xl font-semibold text-gray-800 flex items-center">
                     <i class="fas fa-paper-plane mr-3 text-indigo-600"></i> Submit a Request to Admin
                 </h3>
-                <a href="{{ url_for('add_request') }}" class="btn bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 transition-colors duration-200" aria-label="View all requests">
-                    View All
-                </a>
             </div>
             <div class="p-6 space-y-4">
                 <form action="{{ url_for('add_request') }}" method="POST" class="space-y-4">
@@ -179,7 +129,7 @@
                 <h3 class="text-lg sm:text-xl font-semibold text-gray-800 flex items-center">
                     <i class="fas fa-clipboard-list mr-3 text-indigo-600"></i> My Submitted Requests
                 </h3>
-                <a href="{{ url_for('add_request') }}" class="btn bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 transition-colors duration-200" aria-label="View all requests">
+                <a href="{{ url_for('my_requests') }}" class="btn bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 transition-colors duration-200" aria-label="View all requests">
                     View All
                 </a>
             </div>
@@ -221,15 +171,33 @@
     </div>
 </div>
 
-<!-- Custom CSS for Animations -->
-<style>
-    .animate-fade-in {
-        animation: fadeIn 0.5s ease-in;
-    }
+<!-- Success Modal -->
+<div id="successModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg shadow-xl p-8 max-w-sm mx-auto text-center">
+        <div class="flex justify-center items-center w-16 h-16 mx-auto bg-green-100 rounded-full mb-4">
+            <svg class="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+        </div>
+        <h2 class="text-2xl font-bold text-gray-800 mb-2">Request Submitted!</h2>
+        <p class="text-gray-600">Your request has been sent to the admin for approval.</p>
+    </div>
+</div>
 
-    @keyframes fadeIn {
-        0% { opacity: 0; transform: translateY(10px); }
-        100% { opacity: 1; transform: translateY(0); }
-    }
-</style>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    {% if category == 'success' %}
+                        const successModal = document.getElementById('successModal');
+                        successModal.classList.remove('hidden');
+                        setTimeout(function() {
+                            successModal.classList.add('hidden');
+                        }, 3000); // Hide after 3 seconds
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    });
+</script>
+
 {% endblock %}

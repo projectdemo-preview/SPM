@@ -157,7 +157,7 @@ def dashboard():
     resources = Resource.query.filter_by(user_id=user_id).limit(2).all()
     birthdays = Birthday.query.filter_by(user_id=user_id).all()
     movies = Movie.query.filter_by(user_id=user_id).all()
-    requests = Request.query.filter_by(user_id=user_id).limit(2).all()
+    requests = Request.query.filter_by(user_id=user_id).limit(8).all()
     return render_template('dashboard.html',
                         tasks=tasks, announcements=announcements, resources=resources,
                         birthdays=birthdays, movies=movies, requests=requests, csrf_token_value=generate_csrf())
