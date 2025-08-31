@@ -5,7 +5,9 @@
     <!-- Top Navigation Bar (Jira-like Header) -->
     <nav class="bg-gray-800 text-white p-4 shadow-md flex items-center justify-between">
         <div class="flex items-center">
-            <a href="{{ url_for('index') }}" class="text-xl font-bold mr-6">All-in-One Planner</a>
+<a href="{{ url_for('index') }}" class="mr-6">
+    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="All-in-One Planner Logo" class="h-8">
+</a>
             <!-- Desktop Nav Links -->
             <div class="hidden md:flex space-x-4">
                 {% if session.get('user_id') %}
