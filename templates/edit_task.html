@@ -7,7 +7,7 @@
     <h1 class="text-4xl font-bold mb-8">Edit Task</h1>
 
     <div class="card">
-        <form action="{{ url_for('edit_task', task_id=task.id) }}" method="POST">
+        <form action="{{ url_for('edit_task', public_id=task.public_id) }}" method="POST">
             <input type="hidden" name="csrf_token" value="{{ csrf_token_value }}"/>
             <div class="form-group mb-4">
                 <label for="title">Title</label>
