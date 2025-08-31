@@ -1,0 +1,38 @@
+{% extends 'dashboard_base.html' %}
+
+{% block title %}Add Item for {{ user.name }}{% endblock %}
+
+{% block dashboard_content %}
+<div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-8 tracking-tight">
+        Add Item for {{ user.name }}
+    </h1>
+
+    <div class="card">
+        <form method="POST" action="{{ url_for('admin_add_item', user_id=user.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token_value }}"/>
+            <div class="form-group mb-4">
+                <label for="item_type">Item Type</label>
+                <select name="item_type" class="form-control">
+                    <option value="task">Task</option>
+                    <option value="announcement">Announcement</option>
+                    <option value="resource">Resource</option>
+                </select>
+            </div>
+            <div class="form-group mb-4">
+                <label for="title">Title</label>
+                <input type="text" name="title" class="form-control" required>
+            </div>
+            <div class="form-group mb-4">
+                <label for="description">Description</label>
+                <textarea name="description" class="form-control" rows="3"></textarea>
+            </div>
+            <div class="form-group mb-4">
+                <label for="due_date">Due Date (for tasks)</label>
+                <input type="date" name="due_date" class="form-control">
+            </div>
+            <button type="submit" class="btn btn-primary">Add Item</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

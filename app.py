@@ -183,7 +183,7 @@ def manage_tasks():
 def tasks():
     user_id = session['user_id']
     tasks = Task.query.filter_by(user_id=user_id).all()
-    return render_template('tasks.html', tasks=tasks)
+    return render_template('tasks.html', tasks=tasks, csrf_token_value=generate_csrf())
 
 @app.route('/add_task', methods=['GET', 'POST'])
 @login_required
@@ -205,7 +205,7 @@ def add_task():
         else:
             return redirect(url_for('tasks'))
 
-    return render_template('add_task.html')
+    return render_template('add_task.html', csrf_token_value=generate_csrf())
 
 @app.route('/edit_task/<int:task_id>', methods=['GET', 'POST'])
 @login_required
@@ -276,7 +276,7 @@ def add_announcement():
         db.session.commit()
         flash('Announcement added successfully!', 'success')
         return redirect(url_for('admin_dashboard'))
-    return render_template('add_announcement.html')
+    return render_template('add_announcement.html', csrf_token_value=generate_csrf())
 
 @app.route('/admin/edit_announcement/<int:announcement_id>', methods=['GET', 'POST'])
 @login_required
@@ -324,7 +324,7 @@ def add_resource():
         db.session.commit()
         flash('Resource added successfully!', 'success')
         return redirect(url_for('admin_dashboard'))
-    return render_template('add_resource.html')
+    return render_template('add_resource.html', csrf_token_value=generate_csrf())
 
 @app.route('/admin/edit_resource/<int:resource_id>', methods=['GET', 'POST'])
 @login_required
@@ -372,12 +372,21 @@ def resources():
 # ----------------------------_
 # User Management (Admin)
 # ----------------------------_
-@app.route('/admin/users')
+@app.route('/admin/users', methods=['GET', 'POST'])
 @login_required
 @admin_required
 def manage_users():
-    users = User.query.all()
-    return render_template('manage_users.html', users=users)
+    search_query = request.form.get('search_query')
+    view_all = request.args.get('view_all')
+
+    if search_query:
+        users = User.query.filter(User.userID.ilike(f'%{search_query}%')).all()
+    elif view_all:
+        users = User.query.all()
+    else:
+        users = User.query.limit(10).all()
+
+    return render_template('manage_users.html', users=users, csrf_token_value=generate_csrf())
 
 @app.route('/admin/edit_user/<int:user_id>', methods=['GET', 'POST'])
 @login_required
@@ -442,7 +451,7 @@ def add_birthday():
         db.session.commit()
         flash('Birthday added successfully!', 'success')
         return redirect(url_for('birthdays'))
-    return render_template('add_birthday.html')
+    return render_template('add_birthday.html', csrf_token_value=generate_csrf())
 
 @app.route('/edit_birthday/<int:birthday_id>', methods=['GET', 'POST'])
 @login_required
@@ -498,7 +507,7 @@ def add_movie():
         db.session.commit()
         flash('Movie added successfully!', 'success')
         return redirect(url_for('movies'))
-    return render_template('add_movie.html')
+    return render_template('add_movie.html', csrf_token_value=generate_csrf())
 
 @app.route('/edit_movie/<int:movie_id>', methods=['GET', 'POST'])
 @login_required
@@ -726,6 +735,39 @@ def add_header(response):
 # -----------------------------
 
 
+
+
+@app.route('/admin/add_item/<int:user_id>', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def admin_add_item(user_id):
+    user = User.query.get_or_404(user_id)
+    if request.method == 'POST':
+        item_type = request.form.get('item_type')
+        title = request.form.get('title')
+        description = request.form.get('description')
+
+        if not all([item_type, title]):
+            flash('Missing required fields!', 'danger')
+            return redirect(url_for('admin_add_item', user_id=user_id))
+
+        if item_type == 'task':
+            due_date_str = request.form.get('due_date')
+            due_date = datetime.strptime(due_date_str, '%Y-%m-%d') if due_date_str else None
+            new_item = Task(title=title, description=description, due_date=due_date, user_id=user_id)
+        elif item_type == 'announcement':
+            new_item = Announcement(title=title, description=description, user_id=user_id)
+        elif item_type == 'resource':
+            new_item = Resource(title=title, description=description, user_id=user_id)
+        else:
+            flash('Invalid item type!', 'danger')
+            return redirect(url_for('admin_add_item', user_id=user_id))
+
+        db.session.add(new_item)
+        db.session.commit()
+        flash(f'{item_type.capitalize()} added successfully for {user.name}!', 'success')
+        return redirect(url_for('manage_users'))
+    return render_template('admin_add_item.html', user=user, csrf_token_value=generate_csrf())
 
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0")
