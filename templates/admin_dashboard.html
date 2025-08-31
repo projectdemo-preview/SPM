@@ -38,13 +38,13 @@
                                 <td class="p-3">{{ user.name|default('Unknown', true) }}</td>
                                 <td class="p-3">{{ user.email|default('No Email', true) }}</td>
                                 <td class="p-3 flex space-x-2">
-                                    <button type="button" class="btn bg-indigo-600 text-white px-3 py-1 rounded-md text-sm font-medium hover:bg-indigo-700 transition-colors duration-200" data-bs-toggle="modal" data-bs-target="#addItemModal" data-user-id="{{ user.id|default(0, true) }}" aria-label="Add item for user {{ user.name|default('Unknown', true) }}">
+                                    <button type="button" class="btn bg-indigo-600 text-white px-3 py-1 rounded-md text-sm font-medium hover:bg-indigo-700 transition-colors duration-200" data-bs-toggle="modal" data-bs-target="#addItemModal" data-user-id="{{ user.public_id|default('', true) }}" aria-label="Add item for user {{ user.name|default('Unknown', true) }}">
                                         Add Item
                                     </button>
-                                    <a href="{{ url_for('edit_user', user_id=user.id) if user.id else '#' }}" class="btn bg-yellow-500 text-white px-3 py-1 rounded-md text-sm font-medium hover:bg-yellow-600 transition-colors duration-200 {% if not user.id %}opacity-50 cursor-not-allowed{% endif %}" aria-label="Edit user {{ user.name|default('Unknown', true) }}">
+                                    <a href="{{ url_for('edit_user', public_id=user.public_id) if user.public_id else '#' }}" class="btn bg-yellow-500 text-white px-3 py-1 rounded-md text-sm font-medium hover:bg-yellow-600 transition-colors duration-200 {% if not user.public_id %}opacity-50 cursor-not-allowed{% endif %}" aria-label="Edit user {{ user.name|default('Unknown', true) }}">
                                         Edit
                                     </a>
-                                    <a href="{{ url_for('delete_user', user_id=user.id) if user.id else '#' }}" class="btn bg-red-500 text-white px-3 py-1 rounded-md text-sm font-medium hover:bg-red-600 transition-colors duration-200 {% if not user.id %}opacity-50 cursor-not-allowed{% endif %}" onclick="{% if user.id %}return confirm('Are you sure you want to delete this user?'){% else %}return false{% endif %}" aria-label="Delete user {{ user.name|default('Unknown', true) }}">
+                                    <a href="{{ url_for('delete_user', public_id=user.public_id) if user.public_id else '#' }}" class="btn bg-red-500 text-white px-3 py-1 rounded-md text-sm font-medium hover:bg-red-600 transition-colors duration-200 {% if not user.public_id %}opacity-50 cursor-not-allowed{% endif %}" onclick="{% if user.public_id %}return confirm('Are you sure you want to delete this user?'){% else %}return false{% endif %}" aria-label="Delete user {{ user.name|default('Unknown', true) }}">
                                         Delete
                                     </a>
                                 </td>
@@ -133,10 +133,10 @@
                                 <td class="p-3">{{ task.user.name|default('Unassigned', true) }}</td>
                                 <td class="p-3">{{ task.due_date.strftime('%Y-%m-%d') if task.due_date else 'N/A' }}</td>
                                 <td class="p-3 flex space-x-2">
-                                    <a href="{{ url_for('edit_task', task_id=task.id) if task.id else '#' }}" class="btn bg-yellow-500 text-white px-3 py-1 rounded-md text-sm font-medium hover:bg-yellow-600 transition-colors duration-200 {% if not task.id %}opacity-50 cursor-not-allowed{% endif %}" aria-label="Edit task {{ task.title|default('No Title', true) }}">
+                                    <a href="{{ url_for('edit_task', public_id=task.public_id) if task.public_id else '#' }}" class="btn bg-yellow-500 text-white px-3 py-1 rounded-md text-sm font-medium hover:bg-yellow-600 transition-colors duration-200 {% if not task.public_id %}opacity-50 cursor-not-allowed{% endif %}" aria-label="Edit task {{ task.title|default('No Title', true) }}">
                                         Edit
                                     </a>
-                                    <a href="{{ url_for('delete_task', task_id=task.id) if task.id else '#' }}" class="btn bg-red-500 text-white px-3 py-1 rounded-md text-sm font-medium hover:bg-red-600 transition-colors duration-200 {% if not task.id %}opacity-50 cursor-not-allowed{% endif %}" onclick="{% if task.id %}return confirm('Are you sure you want to delete this task?'){% else %}return false{% endif %}" aria-label="Delete task {{ task.title|default('No Title', true) }}">
+                                    <a href="{{ url_for('delete_task', public_id=task.public_id) if task.public_id else '#' }}" class="btn bg-red-500 text-white px-3 py-1 rounded-md text-sm font-medium hover:bg-red-600 transition-colors duration-200 {% if not task.public_id %}opacity-50 cursor-not-allowed{% endif %}" onclick="{% if task.public_id %}return confirm('Are you sure you want to delete this task?'){% else %}return false{% endif %}" aria-label="Delete task {{ task.title|default('No Title', true) }}">
                                         Delete
                                     </a>
                                 </td>
@@ -182,10 +182,10 @@
                                 <td class="p-3">{{ announcement.user.name|default('Unassigned', true) }}</td>
                                 <td class="p-3">{{ announcement.description|default('No Description', true) }}</td>
                                 <td class="p-3 flex space-x-2">
-                                    <a href="{{ url_for('edit_announcement', announcement_id=announcement.id) if announcement.id else '#' }}" class="btn bg-yellow-500 text-white px-3 py-1 rounded-md text-sm font-medium hover:bg-yellow-600 transition-colors duration-200 {% if not announcement.id %}opacity-50 cursor-not-allowed{% endif %}" aria-label="Edit announcement {{ announcement.title|default('No Title', true) }}">
+                                    <a href="{{ url_for('edit_announcement', public_id=announcement.public_id) if announcement.public_id else '#' }}" class="btn bg-yellow-500 text-white px-3 py-1 rounded-md text-sm font-medium hover:bg-yellow-600 transition-colors duration-200 {% if not announcement.public_id %}opacity-50 cursor-not-allowed{% endif %}" aria-label="Edit announcement {{ announcement.title|default('No Title', true) }}">
                                         Edit
                                     </a>
-                                    <a href="{{ url_for('delete_announcement', announcement_id=announcement.id) if announcement.id else '#' }}" class="btn bg-red-500 text-white px-3 py-1 rounded-md text-sm font-medium hover:bg-red-600 transition-colors duration-200 {% if not announcement.id %}opacity-50 cursor-not-allowed{% endif %}" onclick="{% if announcement.id %}return confirm('Are you sure you want to delete this announcement?'){% else %}return false{% endif %}" aria-label="Delete announcement {{ announcement.title|default('No Title', true) }}">
+                                    <a href="{{ url_for('delete_announcement', public_id=announcement.public_id) if announcement.public_id else '#' }}" class="btn bg-red-500 text-white px-3 py-1 rounded-md text-sm font-medium hover:bg-red-600 transition-colors duration-200 {% if not announcement.public_id %}opacity-50 cursor-not-allowed{% endif %}" onclick="{% if announcement.public_id %}return confirm('Are you sure you want to delete this announcement?'){% else %}return false{% endif %}" aria-label="Delete announcement {{ announcement.title|default('No Title', true) }}">
                                         Delete
                                     </a>
                                 </td>
@@ -231,10 +231,10 @@
                                 <td class="p-3">{{ resource.user.name|default('Unassigned', true) }}</td>
                                 <td class="p-3">{{ resource.description|default('No Description', true) }}</td>
                                 <td class="p-3 flex space-x-2">
-                                    <a href="{{ url_for('edit_resource', resource_id=resource.id) if resource.id else '#' }}" class="btn bg-yellow-500 text-white px-3 py-1 rounded-md text-sm font-medium hover:bg-yellow-600 transition-colors duration-200 {% if not resource.id %}opacity-50 cursor-not-allowed{% endif %}" aria-label="Edit resource {{ resource.title|default('No Title', true) }}">
+                                    <a href="{{ url_for('edit_resource', public_id=resource.public_id) if resource.public_id else '#' }}" class="btn bg-yellow-500 text-white px-3 py-1 rounded-md text-sm font-medium hover:bg-yellow-600 transition-colors duration-200 {% if not resource.public_id %}opacity-50 cursor-not-allowed{% endif %}" aria-label="Edit resource {{ resource.title|default('No Title', true) }}">
                                         Edit
                                     </a>
-                                    <a href="{{ url_for('delete_resource', resource_id=resource.id) if resource.id else '#' }}" class="btn bg-red-500 text-white px-3 py-1 rounded-md text-sm font-medium hover:bg-red-600 transition-colors duration-200 {% if not resource.id %}opacity-50 cursor-not-allowed{% endif %}" onclick="{% if resource.id %}return confirm('Are you sure you want to delete this resource?'){% else %}return false{% endif %}" aria-label="Delete resource {{ resource.title|default('No Title', true) }}">
+                                    <a href="{{ url_for('delete_resource', public_id=resource.public_id) if resource.public_id else '#' }}" class="btn bg-red-500 text-white px-3 py-1 rounded-md text-sm font-medium hover:bg-red-600 transition-colors duration-200 {% if not resource.public_id %}opacity-50 cursor-not-allowed{% endif %}" onclick="{% if resource.public_id %}return confirm('Are you sure you want to delete this resource?'){% else %}return false{% endif %}" aria-label="Delete resource {{ resource.title|default('No Title', true) }}">
                                         Delete
                                     </a>
                                 </td>

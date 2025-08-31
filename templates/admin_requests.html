@@ -42,7 +42,7 @@
                                 </span>
                             </td>
                             <td class="p-3 flex space-x-2">
-                                <form action="{{ url_for('approve_request', request_id=req.id) }}" method="POST" class="flex flex-col space-y-2 w-full sm:w-auto">
+                                <form action="{{ url_for('approve_request', public_id=req.public_id) }}" method="POST" class="flex flex-col space-y-2 w-full sm:w-auto">
                                     <input type="hidden" name="csrf_token" value="{{ csrf_token_value }}"/>
                                     <textarea name="admin_message" placeholder="Optional message" rows="2" class="w-full p-2 border border-gray-300 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200" aria-describedby="approve_message_help_{{ req.id }}"></textarea>
                                     <small id="approve_message_help_{{ req.id }}" class="text-xs text-gray-500">Optional message for approval</small>
@@ -50,7 +50,7 @@
                                         Approve
                                     </button>
                                 </form>
-                                <form action="{{ url_for('reject_request', request_id=req.id) }}" method="POST" class="flex flex-col space-y-2 w-full sm:w-auto">
+                                <form action="{{ url_for('reject_request', public_id=req.public_id) }}" method="POST" class="flex flex-col space-y-2 w-full sm:w-auto">
                                     <input type="hidden" name="csrf_token" value="{{ csrf_token_value }}"/>
                                     <textarea name="admin_message" placeholder="Optional message" rows="2" class="w-full p-2 border border-gray-300 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200" aria-describedby="reject_message_help_{{ req.id }}"></textarea>
                                     <small id="reject_message_help_{{ req.id }}" class="text-xs text-gray-500">Optional message for rejection</small>
