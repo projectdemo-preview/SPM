@@ -1,0 +1,25 @@
+services:
+  # A PostgreSQL database
+  - type: psql
+    name: all-in-one-planner-db
+    plan: free
+
+  # The Flask web service
+  - type: web
+    name: all-in-one-planner-app
+    runtime: python
+    plan: free
+    buildCommand: |
+      pip install -r requirements.txt
+      flask db upgrade
+    startCommand: "gunicorn app:app"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11
+      - key: FLASK_APP
+        value: app.py
+      - key: DATABASE_URL
+        fromService:
+          type: psql
+          name: all-in-one-planner-db
+          property: connectionString
