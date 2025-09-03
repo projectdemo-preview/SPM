@@ -847,4 +847,4 @@ def admin_add_item(public_id):
     return render_template('admin_add_item.html', user=user, csrf_token_value=generate_csrf())
 
 if __name__ == '__main__':
-    app.run(debug=True, host="0.0.0.0")
+    app.run(debug=False, host="0.0.0.0")
